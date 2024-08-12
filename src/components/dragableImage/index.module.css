@@ -1,0 +1,21 @@
+  #resizeContainer {
+      position: relative;
+      background-color: transparent;
+      border: solid #0391f7 1px;
+  }
+
+  #draghandle {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      transform: translate(50%, 50%);
+      cursor: pointer;
+  }
+
+  #deleteIcon {
+      position: absolute;
+      top: -15px;
+      right: 0;
+      transform: translate(50%, 50%);
+      cursor: pointer;
+  }
