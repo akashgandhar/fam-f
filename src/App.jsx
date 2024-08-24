@@ -26,6 +26,8 @@ import RefundPolicy from "./screens/Refund";
 import ReturnPolicy from "./screens/Return";
 import ShippingPolicy from "./screens/Shipping";
 import Gifts from "./screens/Gifts";
+import Framesize from "./screens/Framesize";
+import FrameDisplay from "./screens/FrameDisplay";
 // import ChooseFileOptions from "./components/chooseFileOptions";
 
 function App() {
@@ -49,10 +51,12 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
-        <Route path="/frames" element={<Frames />} />
-          <Route path="/refund" element={<RefundPolicy />} />
-          <Route path="/return" element={<ReturnPolicy />} />
-          <Route path="/shipping" element={<ShippingPolicy />} />
+        <Route path="/frames/:size/:numberOfFrames" element={<Frames />} />
+        <Route path="/framesize" element={<Framesize />} />
+        {/* <Route path="/framedisplay/:size/:numberOfFrames" element={<FrameDisplay />} /> */}
+        <Route path="/refund" element={<RefundPolicy />} />
+        <Route path="/return" element={<ReturnPolicy />} />
+        <Route path="/shipping" element={<ShippingPolicy />} />
         <Route path="/orders" element={<Order />} />
         <Route path="/gifts" element={<Gifts />} />
         <Route path="/my-account" element={<MyAccount />} />

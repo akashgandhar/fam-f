@@ -119,8 +119,7 @@ const DragableImage = ({ item, ref2, warnRef, index, onTransform }) => {
                 draggable='false'
                 style={{
                     //objectFit: 'cover',
-                    //width: '100%',
-                    width: 'auto',
+                    width: '100%',
                     height: '100%',
                     transform: item.scale,
                 }}

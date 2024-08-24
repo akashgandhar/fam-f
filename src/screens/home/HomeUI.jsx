@@ -200,9 +200,12 @@ const HomeUI = () => {
                         <p className="my-4 w-lg-100 pr-lg-5 wow fadeInDown">
                             {homeData?.homepage?.firstContent?.description}
                         </p>
-                        <NavLink to={'/frames'} className="btn btn-orange rounded-pill wow fadeInDown mb-5" id="gt"> Customise </NavLink>
                     </div>
+                <div className='bg-banner bg-fixed-grad d-flex justify-content-center'>
+                <NavLink to={'/framesize'}  className="btn btn-orange rounded-pill wow fadeInDown my-5  " role='button' id="gt"> Customise </NavLink>
                 </div>
+                </div>
+                        
             </div>
             {/* Decor */}
             <section id="decor" className="container py-lg-5 py-3">
