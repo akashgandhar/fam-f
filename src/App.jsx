@@ -28,6 +28,7 @@ import ShippingPolicy from "./screens/Shipping";
 import Gifts from "./screens/Gifts";
 import Framesize from "./screens/Framesize";
 import FrameDisplay from "./screens/FrameDisplay";
+
 // import ChooseFileOptions from "./components/chooseFileOptions";
 
 function App() {
