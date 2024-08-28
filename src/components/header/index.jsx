@@ -53,7 +53,7 @@ const Header = ({ showCheckout = false, convertHtmlToImg }) => {
                     <div className="row h-100 align-content-center">
                         <div className="col">
                             <NavLink to={'/'}>
-                                <img src="../assets/images/logo.svg" alt="" height={48} width={96} />
+                                <img src="/assets/images/logo.svg" alt="" height={48} width={96} />
                             </NavLink>
                         </div>
 
