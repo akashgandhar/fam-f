@@ -277,113 +277,104 @@ const Frames = () => {
                                     gloableImages = updatedImages;
                                     updateAndSaveImagesInLocalStorage(gloableImages);
                                 }}
-                                updateRange={(rangeValue) => {
-                                    if (imgRef.current && imgRef.current.length > 0) {
-                                        const updatedImages = [...gloableImages];
-                                        if (selectedFrame > -1) {
-                                            const splitt =
-                                                updatedImages[selectedFrame].scale.split(" ");
-                                            let tempTrans = splitt[0];
-                                            if (rangeValue == "1" || rangeValue == 1) {
-                                                tempTrans = "translate(0px,0px)";
-                                            }
-                                            const value = `<span class="math-inline">\{tempTrans\} rotate\(0deg\) scale\(</span>{
-                        1 + rangeValue / 10
-                      })`;
-
-                                            imgRef.current[selectedFrame].style.transform = value;
-
-                                            updatedImages[selectedFrame] = {
-                                                ...updatedImages[selectedFrame],
-                                                scale: value,
-                                                scaleValue: rangeValue,
-                                            };
-                                        } else {
-                                            for (let item in imgRef.current) {
-                                                const splitt = updatedImages[item].scale.split(" ");
-                                                let tempTrans = splitt[0];
-                                                if (rangeValue == "1" || rangeValue == 1) {
-                                                    tempTrans = "translate(0px,0px)";
-                                                }
-                                                const value = `<span class="math-inline">\{tempTrans\} rotate\(0deg\) scale\(</span>{
-                          1 + rangeValue / 10
-                        })`;
-
-                                                imgRef.current[item].style.transform = value;
-                                                updatedImages[item] = {
-                                                    ...updatedImages[item],
-                                                    scale: value,
-                                                    scaleValue: rangeValue,
-                                                };
-                                            }
+                                updateRange = {(rangeValue) => {
+                                    if (div3Ref.current && div3Ref.current.length > 0) {
+                                      const updatedImages = [...gloableImages];
+                                      if (selectedFrame > -1) {
+                                        // Get the current translate values from the existing scale string
+                                        const [, translateX, translateY] = updatedImages[selectedFrame].scale.match(/translate\((-?\d+)px,\s*(-?\d+)px\)/) || ['translate(0px, 0px)', 0, 0];
+                                  
+                                        const newScale = 1 + rangeValue / 10;
+                                        const value = `translate(${translateX}px, ${translateY}px) scale(${newScale})`;
+                                  
+                                        div3Ref.current[selectedFrame].style.transform = value;
+                                  
+                                        updatedImages[selectedFrame] = {
+                                          ...updatedImages[selectedFrame],
+                                          scale: value,
+                                          scaleValue: rangeValue,
+                                        };
+                                      } else { // Apply to all images if no frame is selected
+                                        for (let item in div3Ref.current) {
+                                          const [, translateX, translateY] = updatedImages[item].scale.match(/translate\((-?\d+)px,\s*(-?\d+)px\)/) || ['translate(0px, 0px)', 0, 0];
+                                  
+                                          const newScale = 1 + rangeValue / 10;
+                                          const value = `translate(${translateX}px, ${translateY}px) scale(${newScale})`;
+                                  
+                                          div3Ref.current[item].style.transform = value;
+                                          updatedImages[item] = {
+                                            ...updatedImages[item],
+                                            scale: value,
+                                            scaleValue: rangeValue,
+                                          };
                                         }
-                                        setImages(updatedImages);
-                                        gloableImages = updatedImages;
-                                        updateAndSaveImagesInLocalStorage(gloableImages);
+                                      }
+                                      setImages(updatedImages);
+                                      gloableImages = updatedImages;
+                                      updateAndSaveImagesInLocalStorage(gloableImages);
                                     }
-                                }}
-                                updateMat={(mat) => {
-                                    console.log('imageRef', imgRef);
-                                    if (imgRef.current && imgRef.current.length > 0) {
-                                        const updatedImages = [...gloableImages];
-                                        if (selectedFrame > -1) {
-                                            const splitt =
-                                                updatedImages[selectedFrame].div3Class.split(" ");
-                                            div3Ref.current[selectedFrame].className = `${mat} ${splitt[1]}`;
-
-                                            updatedImages[selectedFrame] = {
-                                                ...updatedImages[selectedFrame],
-                                                div3Class: `${mat} ${splitt[1]}`,
-                                            };
-                                        } else {
-                                            for (let item in imgRef.current) {
-                                                const splitt = updatedImages[item].div3Class.split(" ");
-                                                div3Ref.current[item].className = `${mat} ${splitt[1]}`;
-
-                                                updatedImages[item] = {
-                                                    ...updatedImages[item],
-                                                    div3Class: `${mat} ${splitt[1]}`,
-                                                };
-                                            }
+                                  }}
+                                  updateMat = {(mat) => {
+                                    console.log('div3Ref', div3Ref);
+                                    if (div3Ref.current && div3Ref.current.length > 0) {
+                                      const updatedImages = [...gloableImages];
+                                      if (selectedFrame > -1) {
+                                        const splitt = updatedImages[selectedFrame].div3Class.split(" ");
+                                        div3Ref.current[selectedFrame].className = `${mat} ${splitt[1]}`;
+                                  
+                                        updatedImages[selectedFrame] = {
+                                          ...updatedImages[selectedFrame],
+                                          div3Class: `${mat} ${splitt[1]}`,
+                                        };
+                                      } else {
+                                        for (let item in div3Ref.current) {
+                                          const splitt = updatedImages[item].div3Class.split(" ");
+                                          div3Ref.current[item].className = `${mat} ${splitt[1]}`;
+                                  
+                                          updatedImages[item] = {
+                                            ...updatedImages[item],
+                                            div3Class: `${mat} ${splitt[1]}`,
+                                          };
                                         }
-                                        setImages(updatedImages);
-                                        gloableImages = updatedImages;
-                                        updateAndSaveImagesInLocalStorage(gloableImages);
+                                      }
+                                      setImages(updatedImages);
+                                      gloableImages = updatedImages;
+                                      updateAndSaveImagesInLocalStorage(gloableImages);
                                     }
-                                }}
-                                updateEffect={(effect) => {
+                                  }}
+                                  
+                                  updateEffect = {(effect) => {
                                     console.log("updateEffect called from BottomSelector:", effect);
-                                    console.log('imageRef filter', imgRef.current);
-                                    if (imgRef.current && imgRef.current.length > 0) {
-                                        const updatedImages = [...gloableImages];
-                                        console.log("updatedImages bs", updatedImages);
-                                        if (selectedFrame > -1) {
-                                            const splitt =
-                                                updatedImages[selectedFrame].div3Class.split(" ");
-                                            div3Ref.current[selectedFrame].className = `${splitt[0]} ${effect}`;
-                                            console.log("Effect state updated from updateeffect func:", effect); // Log the effect state
-
-                                            updatedImages[selectedFrame] = {
-                                                ...updatedImages[selectedFrame],
-                                                div3Class: `${splitt[0]} ${effect}`,
-                                            };
-                                        } else {
-                                            for (let item in imgRef.current) {
-                                                const splitt = updatedImages[item].div3Class.split(" ");
-                                                div3Ref.current[item].className = `${splitt[0]} ${effect}`;
-                                                console.log("Effect state updated from updateeffect func:", effect); // Log the effect state
-
-                                                updatedImages[item] = {
-                                                    ...updatedImages[item],
-                                                    div3Class: `${splitt[0]} ${effect}`,
-                                                };
-                                            }
+                                    // console.log('div3Ref filter', div3Ref.current);
+                                    if (div3Ref.current && div3Ref.current.length > 0) {
+                                      const updatedImages = [...gloableImages];
+                                      console.log("updatedImages bs", updatedImages);
+                                      if (selectedFrame > -1) {
+                                        const splitt = updatedImages[selectedFrame].div3Class.split(" ");
+                                        div3Ref.current[selectedFrame].className = `${splitt[0]} ${effect}`;
+                                        console.log("Effect state updated from updateeffect func:", effect);
+                                  
+                                        updatedImages[selectedFrame] = {
+                                          ...updatedImages[selectedFrame],
+                                          div3Class: `${splitt[0]} ${effect}`,
+                                        };
+                                      } else {
+                                        for (let item in div3Ref.current) {
+                                          const splitt = updatedImages[item].div3Class.split(" ");
+                                          div3Ref.current[item].className = `${splitt[0]} ${effect}`;
+                                          console.log("Effect state updated from updateeffect func:", effect);
+                                  
+                                          updatedImages[item] = {
+                                            ...updatedImages[item],
+                                            div3Class: `${splitt[0]} ${effect}`,
+                                          };
                                         }
-                                        setImages(updatedImages);
-                                        gloableImages = updatedImages;
-                                        updateAndSaveImagesInLocalStorage(gloableImages);
+                                      }
+                                      setImages(updatedImages);
+                                      gloableImages = updatedImages;
+                                      updateAndSaveImagesInLocalStorage(gloableImages);
                                     }
-                                }}
+                                  }}
                                 updateDiv={(frameClass, subFrame, text) => {
                                     const updatedImages = [...gloableImages];
                                     if (selectedFrame > -1) {
@@ -567,143 +558,144 @@ const Frames = () => {
         </div>
     );
 };
-
 var frameClassGloable;
-var subFrameGloable;
-var rangeValueGloable = "1";
-var effectGloable, frameSizeGloable;
-export const BottomSelector = ({
-    onPlusClick,
-    updateImageData,
-    updateEffect,
-    updateDiv,
-    selectedFrame,
-    updateText,
-    updateMat,
-    value,
-    setValue,
-    updateRange,
-}) => {
-    const { width } = useWindowDimensions();
-    const [type, setType] = useState("");
-    const [frame, setFrame] = useState(-1);
-    const [effect, setEffect] = useState(-1);
-    const [mat, setMat] = useState(-1);
-    const [sticker, setSticker] = useState(null);
-    const [text, setText] = useState(-1);
-    const [rangeValue, setRangeValue] = useState(-1);
-    const marginRight = { marginRight: 30 };
-    const imageSize = 22;
-
-    useEffect(() => {
-        if (type === "crop" && selectedFrame > -1) {
-            setRangeValue(gloableImages[selectedFrame].scaleValue);
-        }
-    }, [type, selectedFrame]);
-    useEffect(() => {
-        if (selectedFrame == -1) {
-            rangeValueGloable = rangeValue;
-        }
-    }, [selectedFrame, rangeValue]);
-
-    useEffect(() => {
-        if (sticker) {
-            updateImageData(sticker);
-        }
-    }, [sticker]);
-    useEffect(() => {
-        effectGloable = effect;
-        updateEffect(effectGloable)
-        console.log("Effect changed in BottomSelector:", effect);
-    }, [effect]);
-
-    useEffect(() => {
-        if (frame != -1) {
-            frameClassGloable = frame === 0 ? "frame-one" : frame === 1 ? "frame-two" : "frame-three";
-            subFrameGloable = frame == 1 ? "sub-frame-inner sub-frame" : frame === 2 ? "sub-frame-inner sub-frame-wood" : "sub-frame-inner";
-            updateDiv(frameClassGloable, subFrameGloable);
-        }
-    }, [frame]);
-
-    useEffect(() => {
-        if (text != -1) {
-            updateText(text);
-        }
-    }, [text]);
-
-    useEffect(() => {
-        if (rangeValue != -1) {
-            updateRange(rangeValue);
-        }
-    }, [rangeValue]);
-
-    useEffect(() => {
-        if (effect != -1) {
-            effectGloable = effect;
-            updateEffect(effectGloable);
-        }
-    }, [effect]);
-
-    useEffect(() => {
-        if (mat != -1) {
-            frameSizeGloable = mat === 0 ? "frame-image-large" : mat === 1 ? "frame-image-medium" : "frame-image-small";
-            updateMat(frameSizeGloable);
-        }
-    }, [mat]);
-    const stickerListRef = useRef(null);
-
-    const handleMouseWheel = (e) => {
-        const delta = e.deltaY || e.detail || e.wheelDelta;
-
-        if (stickerListRef.current) {
-            stickerListRef.current.scrollLeft += delta;
-        }
-    };
-    if (type === "frame") {
-        return (
-            <div className="ToolBox Frame">
-                <div
-                    className={`toolContent ${frame === 0 ? "activeEffect" : ""}`}
-                    onClick={() => setFrame(0)}
-                >
-                    <img src={BlackFrameIcon} width={60} height={60} alt="FrameIcon" />
-                    <span>Black</span>
-                </div>
-                <div
-                    className={`toolContent ${frame === 1 ? "activeEffect" : ""}`}
-                    onClick={() => setFrame(1)}
-                >
-                    <img src={WhiteFrameIcon} width={60} height={60} alt="EffectIcon" />
-                    <span>White</span>
-                </div>
-                <div
-                    className={`toolContent ${frame === 2 ? "activeEffect" : ""}`}
-                    onClick={() => setFrame(2)}
-                >
-                    <img src={FrameLessIcon} width={60} height={60} alt="MatIcon" />
-                    <span>Wood</span>
-                </div>
-                <div onClick={() => setType("")} className="goback_cta">
-                    Go Back
-                </div>
-            </div>
-        );
-    } else if (type === "effect") {
-        return (
-            <div className="ToolBox Effect">
-                <div
-                    className={`toolContent ${effect === "" ? "activeEffect" : ""}`}
-                    onClick={() => setEffect("")}
-                >
-                    <img src={SamplePicIcon} width={60} height={60} alt="FrameIcon" />
-                    <span style={{
-                        color: effect === '' ? '#f09c01' : 'black'
-                    }}>Normal</span>
-                </div>
-                <div
-                    className={`toolContent ${effect === "filter-willow" ? "activeEffect" : ""}`}
-                    onClick={() => {
-                        
+  var subFrameGloable;
+  var rangeValueGloable = "1";
+  var effectGloable, frameSizeGloable;
+  export const BottomSelector = ({
+      onPlusClick,
+      updateImageData,
+      updateEffect,
+      updateDiv,
+      selectedFrame,
+      updateText,
+      updateMat,
+      value,
+      setValue,
+      updateRange,
+  }) => {
+      const { width } = useWindowDimensions();
+      const [type, setType] = useState("");
+      const [frame, setFrame] = useState(-1);
+      const [effect, setEffect] = useState(-1);
+      const [mat, setMat] = useState(-1);
+      const [sticker, setSticker] = useState(null);
+      const [text, setText] = useState(-1);
+      const [rangeValue, setRangeValue] = useState(-1);
+      const marginRight = { marginRight: 30 };
+      const imageSize = 22;
+  
+      useEffect(() => {
+          if (type === "crop" && selectedFrame > -1) {
+              console.log(selectedFrame)
+              console.log('globalImages', gloableImages)
+              setRangeValue(gloableImages[selectedFrame].scaleValue);
+          }
+      }, [type, selectedFrame]);
+      useEffect(() => {
+          if (selectedFrame == -1) {
+              rangeValueGloable = rangeValue;
+          }
+      }, [selectedFrame, rangeValue]);
+  
+      useEffect(() => {
+          if (sticker) {
+              updateImageData(sticker);
+          }
+      }, [sticker]);
+      useEffect(() => {
+          effectGloable = effect;
+          updateEffect(effectGloable)
+          console.log("Effect changed in BottomSelector:", effect);
+      }, [effect]);
+  
+      useEffect(() => {
+          if (frame != -1) {
+              frameClassGloable = frame === 0 ? "frame-one" : frame === 1 ? "frame-two" : "frame-three";
+              subFrameGloable = frame == 1 ? "sub-frame-inner sub-frame" : frame === 2 ? "sub-frame-inner sub-frame-wood" : "sub-frame-inner";
+              updateDiv(frameClassGloable, subFrameGloable);
+          }
+      }, [frame]);
+  
+      useEffect(() => {
+          if (text != -1) {
+              updateText(text);
+          }
+      }, [text]);
+  
+      useEffect(() => {
+          if (rangeValue != -1) {
+              updateRange(rangeValue);
+          }
+      }, [rangeValue]);
+  
+      useEffect(() => {
+          if (effect != -1) {
+              effectGloable = effect;
+              updateEffect(effectGloable);
+          }
+      }, [effect]);
+  
+      useEffect(() => {
+          if (mat != -1) {
+              frameSizeGloable = mat === 0 ? "frame-image-large" : mat === 1 ? "frame-image-medium" : "frame-image-small";
+              updateMat(frameSizeGloable);
+          }
+      }, [mat]);
+      const stickerListRef = useRef(null);
+  
+      const handleMouseWheel = (e) => {
+          const delta = e.deltaY || e.detail || e.wheelDelta;
+  
+          if (stickerListRef.current) {
+              stickerListRef.current.scrollLeft += delta;
+          }
+      };
+      if (type === "frame") {
+          return (
+              <div className="ToolBox Frame">
+                  <div
+                      className={`toolContent ${frame === 0 ? "activeEffect" : ""}`}
+                      onClick={() => setFrame(0)}
+                  >
+                      <img src={BlackFrameIcon} width={60} height={60} alt="FrameIcon" />
+                      <span>Black</span>
+                  </div>
+                  <div
+                      className={`toolContent ${frame === 1 ? "activeEffect" : ""}`}
+                      onClick={() => setFrame(1)}
+                  >
+                      <img src={WhiteFrameIcon} width={60} height={60} alt="EffectIcon" />
+                      <span>White</span>
+                  </div>
+                  <div
+                      className={`toolContent ${frame === 2 ? "activeEffect" : ""}`}
+                      onClick={() => setFrame(2)}
+                  >
+                      <img src={FrameLessIcon} width={60} height={60} alt="MatIcon" />
+                      <span>Wood</span>
+                  </div>
+                  <div onClick={() => setType("")} className="goback_cta">
+                      Go Back
+                  </div>
+              </div>
+          );
+      } else if (type === "effect") {
+          return (
+              <div className="ToolBox Effect">
+                  <div
+                      className={`toolContent ${effect === "" ? "activeEffect" : ""}`}
+                      onClick={() => setEffect("")}
+                  >
+                      <img src={SamplePicIcon} width={60} height={60} alt="FrameIcon" />
+                      <span style={{
+                          color: effect === '' ? '#f09c01' : 'black'
+                      }}>Normal</span>
+                  </div>
+                  <div
+                      className={`toolContent ${effect === "filter-willow" ? "activeEffect" : ""}`}
+                      onClick={() => {
+  
                         setEffect("filter-willow");
                         updateEffect("filter-willow");
                         console.log(gloableImages); // Log the gloableImages state
@@ -725,8 +717,7 @@ export const BottomSelector = ({
                     }}>Willow</span>
                 </div>
                 <div
-                    className={`toolContent ${effect === "filter-inkwell" ? "activeEffect" : ""
-                        }`}
+                    className={`toolContent ${effect === "filter-inkwell" ? "activeEffect" : ""}`}
                     onClick={() => { setEffect("filter-inkwell"); console.log(gloableImages); console.log(effect) }}
                 >
                     <img
@@ -756,8 +747,7 @@ export const BottomSelector = ({
                     }}>Aden</span>
                 </div>
                 <div
-                    className={`toolContent ${effect === "filter-dogpatch" ? "activeEffect" : ""
-                        }`}
+                    className={`toolContent ${effect === "filter-dogpatch" ? "activeEffect" : ""}`}
                     onClick={() => { setEffect("filter-dogpatch"); console.log(gloableImages); console.log(effect) }}
                 >
                     <img
@@ -772,8 +762,7 @@ export const BottomSelector = ({
                     }}>Dogpatch</span>
                 </div>
                 <div
-                    className={`toolContent ${effect === "filter-earlybird" ? "activeEffect" : ""
-                        }`}
+                    className={`toolContent ${effect === "filter-earlybird" ? "activeEffect" : ""}`}
                     onClick={() => { setEffect("filter-earlybird"); console.log(gloableImages); console.log(effect) }}
                 >
                     <img
@@ -946,208 +935,207 @@ export const BottomSelector = ({
                 <img src={TextIcon} alt="MatIcon" />
                 <span>Add Text</span>
             </div>
-            <div className="toolContent zoom-in-out-box" onClick={() => onPlusClick()}>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="#ff5814"
-                    viewBox="0 0 512 512"
-                >
-                    <path d="M149.1 64.8L138.7 96H64C28.7 96 0 124.7 0 160V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H373.3L362.9 64.8C356.4 45.2 338.1 32 317.4 32H194.6c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z" />
-                </svg>
-                <span style={{ color: "#ff5814" }}>Add Frame</span>
-            </div>
-        </div>
-    );
+            {/* <div className="toolContent zoom-in-out-box" onClick={() => onPlusClick()}>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="#ff5814"
+        viewBox="0 0 512 512"
+    >
+        <path d="M149.1 64.8L138.7 96H64C28.7 96 0 124.7 0 160V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H373.3L362.9 64.8C356.4 45.2 338.1 32 317.4 32H194.6c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z" />
+    </svg>
+    <span style={{ color: "#ff5814" }}>Add Frame</span>
+</div> */}
+</div>
+);
 };
 
 export const FrameContainer = React.forwardRef((props, ref) => {
-    const {
-        item,
-        index,
-        onDelete,
-        onDeleteSticker,
-        div1Ref,
-        div2Ref,
-        divTextRef,
-        div3Ref,
-        onSizePass,
-        onPosition,
-        onTextPosition,
-        selectedFrame,
-        onSelectedFrame,
-        divMainRef,
-        deleteText,
-        cross,
-        setCross,
-    } = props;
-    const warnRef = useRef();
+const {
+    item,
+    index,
+    onDelete,
+    onDeleteSticker,
+    div1Ref,
+    div2Ref,
+    divTextRef,
+    div3Ref,
+    onSizePass,
+    onPosition,
+    onTextPosition,
+    selectedFrame,
+    onSelectedFrame,
+    divMainRef,
+    deleteText,
+    cross,
+    setCross,
+    imgRef
+} = props;
+const warnRef = useRef();
 
-    const { size, numberOfFrames } = useParams();
-    const frameDimensions = {
-        width: `${item.width}px`,
-        height: `${item.height}px`,
-        justifyContent: "center",
-        alignItems: "center",
-    };
+const { size, numberOfFrames } = useParams();
+const frameDimensions = {
+    width: `${item.width}px`,
+    height: `${item.height}px`,
+    justifyContent: "center",
+    alignItems: "center",
+};
 
-    const handleAddImageClick = () => {
-        ref.current.click();
-    };
+const handleAddImageClick = () => {
+    ref.current.click();
+};
 
-    return (
+return (
+    <div
+        className={`FrameContainer ${selectedFrame == index ? "SelectedFrame" : ""}`}
+    >
         <div
-            className={`FrameContainer ${selectedFrame == index ? "SelectedFrame" : ""
-                }`}
+            className="ImageContainer"
+            ref={(temp) => {
+                divMainRef.current[index] = temp;
+            }}
+            style={{
+                padding: item.isShowBoundry ? 0 : 10,
+                ...frameDimensions,
+                position: "relative",
+                overflow: "hidden",
+            }}
         >
             <div
-                className="ImageContainer"
                 ref={(temp) => {
-                    divMainRef.current[index] = temp;
+                    div1Ref.current[index] = temp;
                 }}
-                style={{
-                    padding: item.isShowBoundry ? 0 : 10,
-                    ...frameDimensions,
-                    position: "relative",
-                    overflow: "hidden",
-                }}
+                className={item.div1Class}
             >
                 <div
+                    className={item.div2Class}
                     ref={(temp) => {
-                        div1Ref.current[index] = temp;
+                        div2Ref.current[index] = temp;
                     }}
-                    className={item.div1Class}
                 >
                     <div
-                        className={item.div2Class}
-                        ref={(temp) => {
-                            div2Ref.current[index] = temp;
+                        className={item.div3Class}
+                        style={{
+                            overflow: "hidden",
+                            position: "relative",
+                        }}
+                        ref={(reff) => {
+                            div3Ref.current[index] = reff;
                         }}
                     >
                         <div
-                            className={item.div3Class}
                             style={{
-                                overflow: "hidden",
-                                position: "relative",
-                            }}
-                            ref={(reff) => {
-                                div3Ref.current[index] = reff;
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
                             }}
                         >
-                            <div
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}
-                            >
-                                {item.localUrl ? (
-                                    <DragableImage
-                                        item={item}
-                                        ref2={ref}
-                                        warnRef={warnRef}
-                                        index={index}
-                                        onTransform={(value) => {
-                                            gloableImages[index].scale = value;
-                                        }}
+                            {item.localUrl ? (
+                                <DragableImage
+                                    item={item}
+                                    ref={(el) => (imgRef.current[index] = el?.current?.imgRef?.current)}
+                                    ref2={ref}
+                                    warnRef={warnRef}
+                                    index={index}
+                                    onTransform={(value) => {
+                                        gloableImages[index].scale = value;
+                                    }}
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "contain",
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    className="addImagePlaceholder"
+                                    onClick={handleAddImageClick}
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Add Image
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    {(
+                        <div style={{ position: "absolute" }}>
+                            <TextDraggable
+                                item={item}
+                                index={index}
+                                divTextRef={divTextRef}
+                                onTextPosition={onTextPosition}
+                                deleteText={deleteText}
+                                setCross={setCross}
+                                cross={cross}
+                            />
+                        </div>
+                    )}
+
+                    {item.sticker.length > 0 &&
+                        item.sticker.map((subItem, sticketIndex) => {
+                            return (
+                                <ResizeableContainer
+                                    key={Math.random().toString()}
+                                    onDelete={() => {
+                                        onDeleteSticker(index, subItem, sticketIndex);
+                                    }}
+                                    onSizePass={(size) => {
+                                        onSizePass(index, size, sticketIndex);
+                                    }}
+                                    onPosition={(position) => {
+                                        onPosition(index, position, sticketIndex);
+                                    }}
+                                    sizePass={subItem.size}
+                                    position={subItem.position}
+                                    div2Ref={div2Ref}
+                                    index={index}
+                                    isShowBoundry={item.isShowBoundry}
+                                >
+                                    <img
+                                        src={subItem.img}
+                                        alt="sticker"
+                                        draggable="false"
                                         style={{
                                             width: "100%",
                                             height: "100%",
-                                            objectFit: "contain",
                                         }}
                                     />
-                                ) : (
-                                    <div
-                                        className="addImagePlaceholder"
-                                        onClick={handleAddImageClick}
-                                        style={{
-                                            width: "100%",
-                                            height: "100%",
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        Add Image
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        {(
-                            <div style={{ position: "absolute" }}>
-                                <TextDraggable
-                                    item={item}
-                                    index={index}
-                                    divTextRef={divTextRef}
-                                    onTextPosition={onTextPosition}
-                                    deleteText={deleteText}
-                                    setCross={setCross}
-                                    cross={cross}
-                                />
-                            </div>
-                        )}
-
-                        {item.sticker.length > 0 &&
-                            item.sticker.map((subItem, sticketIndex) => {
-                                return (
-                                    <ResizeableContainer
-                                        key={Math.random().toString()}
-                                        onDelete={() => {
-                                            onDeleteSticker(index, subItem, sticketIndex);
-                                        }}
-                                        onSizePass={(size) => {
-                                            onSizePass(index, size, sticketIndex);
-                                        }}
-                                        onPosition={(position) => {
-                                            onPosition(index, position, sticketIndex);
-                                        }}
-                                        sizePass={subItem.size}
-                                        position={subItem.position}
-                                        div2Ref={div2Ref}
-                                        index={index}
-                                        isShowBoundry={item.isShowBoundry}
-                                    >
-                                        <img
-                                            src={subItem.img}
-                                            alt="sticker"
-                                            draggable="false"
-                                            style={{
-                                                width: "100%",
-                                                height: "100%",
-                                            }}
-                                        />
-                                    </ResizeableContainer>
-                                );
-                            })}
-                    </div>
-                </div>
-            </div>
-            <div className="frameMessage">
-                <span className="frameImageError" ref={warnRef}>{""}</span>
-                <div>
-                    <span
-                        onClick={() => {
-                            if (selectedFrame == index) {
-                                onSelectedFrame(-1);
-                            } else onSelectedFrame(index);
-                        }}
-                        className={
-                            selectedFrame == index ? "badge badge-success" : "badge badge-secondary"
-                        }
-                    >
-                        {selectedFrame == index ? "Selected" : "Select"}
-                    </span>
-                    <span onClick={() => onDelete(index)} className="badge badge-danger">
-                        {"Delete"}
-                    </span>
+                                </ResizeableContainer>
+                            );
+                        })}
                 </div>
             </div>
         </div>
-    );
+        <div className="frameMessage">
+            <span className="frameImageError" ref={warnRef}>{""}</span>
+            <div>
+                <span
+                    onClick={() => {
+                        if (selectedFrame == index) {
+                            onSelectedFrame(-1);
+                        } else onSelectedFrame(index);
+                    }}
+                    className={
+                        selectedFrame == index ? "badge badge-success" : "badge badge-secondary"
+                    }
+                >
+                    {selectedFrame == index ? "Selected" : "Select"}
+                </span>
+                <span onClick={() => onDelete(index)} className="badge badge-danger">
+                    {"Delete"}
+                </span>
+            </div>
+        </div>
+    </div>
+);
 });
 
 export default Frames;
-
-//https://insta-filters.netlify.app/

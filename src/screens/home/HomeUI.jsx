@@ -9,13 +9,58 @@ import YoutubeThumbnail from '../../assets/images/capture.png';
 import { useEffect, useRef, useState } from 'react';
 import { getImage } from '../../components/fileUploader/getImage';
 import { imgUrl } from '../../theme/appConstants';
+import Carousel from 'react-multi-carousel';
+import 'react-multi-carousel/lib/styles.css';
+import axios from 'axios';
+
 
 
 const HomeUI = () => {
     let homeData = useSelector(state => state.userReducer.homeData);
     const iframeRef = useRef(null);
     const [offerPop, setofferPop] = useState(false);
-    const popupData = homeData?.popup
+    const popupData = homeData?.popup;
+    const [frameNumbers, setFrameNumbers] = useState([]);
+
+    useEffect(() => {
+        // Fetch frame numbers from the backend
+        const fetchFrameNumbers = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/getAllFrameNumbers');
+                setFrameNumbers(response.data);
+            } catch (error) {
+                console.error('Error fetching frame numbers:', error);
+                // Handle the error appropriately (e.g., display an error message)
+            }
+        };
+
+        fetchFrameNumbers();
+    }, []);
+
+    const handleAddToCart = (numberOfFrames) => {
+        window.location.href = `frames/1x1/${numberOfFrames}`;
+    };
+
+    const responsive = {
+        superLargeDesktop: {
+            // the naming can be any, depends on you.
+            breakpoint: { max: 4000, min: 3000 },
+            items: 5,
+        },
+        desktop: {
+            breakpoint: { max: 3000, min: 1024 },
+            items: 3,
+        },
+        tablet: {
+            breakpoint: { max: 1024, min: 464 },
+            items: 2,
+        },
+        mobile: {
+            breakpoint: { max: 464, min: 0 },
+            items: 1,
+        },
+    };
+
 
 
     const offerPopHandle = () => {
@@ -201,50 +246,42 @@ const HomeUI = () => {
                             {homeData?.homepage?.firstContent?.description}
                         </p>
                     </div>
-                <div className='bg-banner bg-fixed-grad d-flex justify-content-center'>
-                <NavLink to={'/framesize'}  className="btn btn-orange rounded-pill wow fadeInDown my-5  " role='button' id="gt"> Customise </NavLink>
+                    <div className='bg-banner bg-fixed-grad d-flex justify-content-center'>
+                        <NavLink to={'/framesize'} className="btn btn-orange rounded-pill wow fadeInDown my-5  " role='button' id="gt"> Customise </NavLink>
+                    </div>
                 </div>
-                </div>
-                        
+
             </div>
             {/* Decor */}
             <section id="decor" className="container py-lg-5 py-3">
                 <div className="row">
-                    <div className="col-lg-8 py-5 text-lg-left text-center" style={{ zIndex: 1 }} >
+                    <div className="col-lg-8 py-5 text-lg-left text-center" style={{ zIndex: 1 }}>
                         <h5 className="subtitle wow zoomIn"> Let's go </h5>
                         <h2 className="mt-4 pt-lg-3 pb-2 wow fadeInDown pre-wrap">{homeData?.homepage?.secondContent?.title}</h2>
                         <p className='mb-4'>{homeData?.homepage?.secondContent?.description}</p>
                         <NavLink to={'/frames'} className="btn btn-orange rounded-pill wow fadeInDown"> Get Started </NavLink>
                     </div>
                 </div>
-                <div
-                    className="row justify-content-center text-center align-items-end row-cols-1 row-cols-md-2 row-cols-lg-3 lift-up-lg">
-                    <div className="col mb-4 mb-lg-0 wow fadeInUp">
-                        <div className="position-relative">
-                            <div className="dec1">
-                                <img src={secondContentImages?.[0]} alt="Decort Image" className="img-fluid" />
+
+                <Carousel responsive={responsive} infinite={true} autoPlay={true} autoPlaySpeed={3000}>
+                    {
+                        frameNumbers.map((frameNumber) => (
+                            <div key={frameNumber._id} className="col mb-4 mb-lg-0 wow fadeInUp">
+                                <div className="position-relative">
+                                    <div className="dec1">
+                                        <img src={frameNumber.imageUrl} alt="Decor Image" className="img-fluid" />
+                                    </div>
+                                </div>
+                                <h4>{frameNumber.numberOfFrames} Frames</h4>
+                                <button onClick={() => handleAddToCart(frameNumber.numberOfFrames)} className="btn btn-orange rounded-pill mt-3">
+                                    Add to Cart
+                                </button>
                             </div>
-                        </div>
-                        <h4> 8 Frames </h4>
-                    </div>
-                    <div className="col mb-4 mb-lg-0 wow fadeInUp" data-wow-delay=".4s">
-                        <div className="position-relative">
-                            <div className="dec1">
-                                <img src={secondContentImages?.[1]} alt="Decort Image" className="img-fluid" />
-                            </div>
-                        </div>
-                        <h4> 12 Frames </h4>
-                    </div>
-                    <div className="col mb-4 mb-lg-0 wow fadeInUp" data-wow-delay=".8s">
-                        <div className="position-relative">
-                            <div className="dec1">
-                                <img src={secondContentImages?.[2]} alt="Decort Image" className="img-fluid" />
-                            </div>
-                        </div>
-                        <h4> 16 Frames </h4>
-                    </div>
-                </div>
+                        ))
+                    }
+                </Carousel>
             </section>
+
             {/* How it Works */}
             <section id="process" className="bg-theme pt-lg-3 container-fluid position-relative">
                 <img src="/assets/images/bg-dots-abs.svg" alt="Dots Background Image" className="bg-dots-abs" />

@@ -27,8 +27,14 @@ const Checkout = () => {
     const [addressValue, setAddressValue] = useState(addressData?.street);
     const [promoCodeValue, setPromoCodeValue] = useState('');
     const [disable, setDisable] = useState(false)
-    // console.log('priceData', priceData);
-    // console.log('isVerified', addressData);
+
+
+    const [countriesData, setCountriesData] = useState([]);
+    const [selectedCountry, setSelectedCountry] = useState("");
+    const [selectedState, setSelectedState] = useState("");
+    const [selectedCity, setSelectedCity] = useState("");
+    const [statesData, setStatesData] = useState([]);
+    const [citiesData, setCitiesData] = useState([]);
 
     // --- Coupoon and Promocode
     const [couponValue, setCouponValue] = useState('');
@@ -47,7 +53,7 @@ const Checkout = () => {
         }
     }, [showCheckOut, promoCodeValue, couponValue])
     useEffect(() => {
-        if (profile?.number !== ""&& profile?.number !== undefined) {
+        if (profile?.number !== "" && profile?.number !== undefined) {
 
             setPhoneValue(profile?.number)
             setDisable(true)
@@ -62,9 +68,84 @@ const Checkout = () => {
         setCouponValue('')
     };
     const handleInputPhone = (e) => {
-        const value = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
-        setPhoneValue(value.substring(0, 10)); // Limit to 10 characters
+        const value = e.target.value.replace(/\D/g, '');
+        setPhoneValue(value.substring(0, 10));
     };
+
+    useEffect(() => {
+        const fetchCountries = async () => {
+            try {
+                const response = await fetch('https://restcountries.com/v3.1/all');
+                const data = await response.json();
+                setCountriesData(data.map(country => country.name.common));
+            } catch (error) {
+                console.error('Error fetching countries:', error);
+            }
+        };
+
+        fetchCountries();
+    }, []);
+
+    const handleCountryChange = (event) => {
+        const selectedCountry = event.target.value;
+        setSelectedCountry(selectedCountry);
+        setSelectedState("");
+        setSelectedCity("");
+
+        const fetchStates = async () => {
+            try {
+                const response = await fetch(`https://countriesnow.space/api/v0.1/countries/states`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ country: selectedCountry })
+                });
+                const data = await response.json();
+                setStatesData(data.data.states);
+            } catch (error) {
+                console.error('Error fetching states:', error);
+            }
+        };
+
+        fetchStates();
+    };
+
+    const handleStateChange = (event) => {
+        const selectedState = event.target.value;
+        setSelectedState(selectedState);
+        setSelectedCity("");
+
+        const fetchCities = async () => {
+            try {
+                const response = await fetch(`https://countriesnow.space/api/v0.1/countries/state/cities`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "country": selectedCountry,
+                        "state": selectedState
+                    })
+                });
+                const data = await response.json();
+                if (data.error) {
+                    console.error('Error fetching cities:', data.error);
+                    return;
+                }
+                setCitiesData(data.data);
+            } catch (error) {
+                console.error('Error fetching cities:', error);
+            }
+        };
+
+        fetchCities();
+    };
+
+    const handleCityChange = (event) => {
+        setSelectedCity(event.target.value);
+    };
+
     const onSubmit = async () => {
 
         const reg = /^\S+@\S+\.\S+$/
@@ -119,7 +200,7 @@ const Checkout = () => {
             "name": nameValue,
             "lastName": lastNameValue,
             "street": addressValue,
-            "country": "india",
+            "country": selectedCountry,
             "phone": phoneValue,
             "city": cityValue,
             "pincode": pincodeValue,
@@ -144,11 +225,11 @@ const Checkout = () => {
                 });
             let { data } = result
             if (data.success) {
-              
-                    
+
+
                 localStorage.removeItem('family_vibes_images_data');
                 if (data?.data?.isFree) {
-                   
+
                     window.location.href = `https://familyvibes.in/thank-you?type=order&order_id=${data?.data?.id}`
                 }
                 data = data?.data?.data
@@ -286,17 +367,31 @@ const Checkout = () => {
                                                 </div>
                                                 <div className="form-group col-md-4">
                                                     <label htmlFor='checkoutcountry'>Country or region</label>
-                                                    <select id='checkoutcountry' className="form-control">
-                                                        <option value="india">India</option>
+                                                    <select id='checkoutcountry' className="form-control" value={selectedCountry} onChange={handleCountryChange}>
+                                                        <option value="">Select Country</option>
+                                                        {countriesData.map(country => (
+                                                            <option key={country} value={country}>{country}</option>
+                                                        ))}
                                                     </select>
                                                 </div>
                                                 <div className="form-group col-md-4">
                                                     <label htmlFor='checkoutstate'>State</label>
-                                                    <input id='checkoutstate' type="text" name="name" placeholder="State" className="form-control" value={stateValue} onChange={e => setStateValue(e.target.value)} />
+                                                    <select id='checkoutstate' className="form-control" value={selectedState} onChange={handleStateChange} disabled={!selectedCountry}>
+                                                        <option value="">Select State</option>
+
+                                                        {statesData.map(stateObj => (
+                                                            <option key={stateObj.state_code} value={stateObj.name}>{stateObj.name}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                                 <div className="form-group col-md-4">
                                                     <label htmlFor='checkoutcity'>City</label>
-                                                    <input id='checkoutcity' type="text" name="name" placeholder="City" className="form-control" value={cityValue} onChange={e => setCityValue(e.target.value)} />
+                                                    <select id='checkoutcity' className="form-control" value={selectedCity} onChange={handleCityChange} disabled={!selectedState}>
+                                                        <option value="">Select City</option>
+                                                        {citiesData.map(city => (
+                                                            <option key={city} value={city}>{city}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                                 <div className="form-group col-md-8">
                                                     <label htmlFor='checkoutAddress'>Address</label>
@@ -407,5 +502,4 @@ const Checkout = () => {
         </div>
     )
 }
-
-export default Checkout
+export default Checkout;

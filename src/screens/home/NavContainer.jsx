@@ -130,6 +130,9 @@ const NavContainer = () => {
                                 <li >
                                     <NavHashLink to="/#gift_cards" className="t-dark" id ="gf">Gift Cards</NavHashLink>
                                 </li>
+                                <li >
+                                    <NavHashLink to="/blogs" className="t-dark" id ="gf">Blogs</NavHashLink>
+                                </li>
 
                                 {profile ?
                                     <>
