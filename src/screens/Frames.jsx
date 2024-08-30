@@ -26,7 +26,9 @@ import { baseUrl } from "../theme/appConstants";
 import fileUpload from "../components/fileUploader/fileUpload";
 import { getImage } from "../components/fileUploader/getImage";
 import { handleUnlinkFile } from "../components/fileUploader/deleteImg";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
+import axios from "axios";
+import { useFrameContext } from "../context/FrameContext";
 
 var gloableImages = []
 const Frames = () => {
@@ -47,7 +49,9 @@ const Frames = () => {
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
     const { size, numberOfFrames } = useParams();
+    console.log(numberOfFrames)
     const fileInputRef = useRef(null);
+    const [size1, setSize1] = useState('1x1');
 
     useLayoutEffect(() => {
         window.scrollTo(scrollX, scrollY);
@@ -203,47 +207,52 @@ const Frames = () => {
 
     useEffect(() => {
         if (numberOfFrames > 0) {
-            const [frameWidth, frameHeight] = calculateFrameDimensions(size);
-
-            function calculateFrameDimensions(aspectRatioString) {
-                const [widthRatio, heightRatio] = aspectRatioString.split('x').map(Number);
-                const maxWidth = 400; // Adjust as needed
-                const maxHeight = 300; // Adjust as needed
-
-                let frameWidth = maxWidth;
-                let frameHeight = (frameWidth / widthRatio) * heightRatio;
-
-                if (frameHeight > maxHeight) {
-                    frameHeight = maxHeight;
-                    frameWidth = (frameHeight / heightRatio) * widthRatio;
-                }
-
-                return [frameWidth, frameHeight];
+        const [frameWidth, frameHeight] = calculateFrameDimensions(size1);
+      
+          function calculateFrameDimensions(aspectRatioString) {
+            const [widthRatio, heightRatio] = aspectRatioString.split('x').map(Number);
+            const maxWidth = 400;
+            const maxHeight = 300;
+      
+            let frameWidth = maxWidth;
+            let frameHeight = (frameWidth / widthRatio) * heightRatio;
+      
+            if (frameHeight > maxHeight) {
+              frameHeight = maxHeight;
+              frameWidth = (frameHeight / heightRatio) * widthRatio;
             }
-
-            const initialImages = Array.from({ length: numberOfFrames }, (_, index) => ({
-                width: frameWidth,
-                height: frameHeight,
-                frame: 0,
-                effect: "",
-                text: "",
-                mat: 0,
-                sticker: [],
-                rangeValue: "1",
-                div1Class: "frame-one",
-                div2Class: "sub-frame-inner",
-                div3Class: "frame-image-large",
-                scale: "translate(0px,0px) rotate(0deg) scale(1)",
-                textPosition: { x: 0, y: 0 },
-                isShowBoundry: true,
-                scaleValue: "1",
-                localUrl: null,
-            }));
-            setImages(initialImages);
-            gloableImages = initialImages;
-            updateAndSaveImagesInLocalStorage(initialImages);
+      
+            return [frameWidth, frameHeight];
+          }
+      
+          const initialImages = Array.from({ length: numberOfFrames }, (_, index) => {
+            const scaleToFit = Math.min(frameWidth / 400, frameHeight / 300); 
+      
+            return {
+              width: frameWidth,
+              height: frameHeight,
+              frame: 0,
+              effect: "",
+              text: "",
+              mat: 0,
+              sticker: [],
+              rangeValue: "1",
+              div1Class: "frame-one",
+              div2Class: "sub-frame-inner",
+              div3Class: "frame-image-large",
+              scale: `translate(0px, 0px) rotate(0deg) scale(${scaleToFit})`,
+              textPosition: { x: 0, y: 0 },
+              isShowBoundry: true,
+              scaleValue: scaleToFit.toString(),
+              localUrl: null,
+            };
+          });
+      
+          setImages(initialImages);
+          gloableImages = initialImages;
+          updateAndSaveImagesInLocalStorage(initialImages);
         }
-    }, [numberOfFrames, size]);
+      }, [numberOfFrames, size1]);
 
     return (
         <div className="UserAdmin">
@@ -261,120 +270,117 @@ const Frames = () => {
                                 }}
                                 value={value}
                                 setValue={setValue}
-                                updateImageData={(sticker) => {
-                                    const updatedImages = [...gloableImages];
-                                    if (selectedFrame > -1) {
-                                        updatedImages[selectedFrame] = {
-                                            ...updatedImages[selectedFrame],
-                                            sticker: [...updatedImages[selectedFrame].sticker, sticker],
-                                        };
-                                    } else {
-                                        updatedImages.forEach((item) => {
-                                            item.sticker = [...item.sticker, sticker];
-                                        });
-                                    }
-                                    setImages(updatedImages);
-                                    gloableImages = updatedImages;
-                                    updateAndSaveImagesInLocalStorage(gloableImages);
-                                }}
-                                updateRange = {(rangeValue) => {
+                                size1={size1}
+                                setSize1={setSize1}
+                                updateRange={(rangeValue) => {
                                     if (div3Ref.current && div3Ref.current.length > 0) {
                                       const updatedImages = [...gloableImages];
-                                      if (selectedFrame > -1) {
-                                        // Get the current translate values from the existing scale string
-                                        const [, translateX, translateY] = updatedImages[selectedFrame].scale.match(/translate\((-?\d+)px,\s*(-?\d+)px\)/) || ['translate(0px, 0px)', 0, 0];
-                                  
-                                        const newScale = 1 + rangeValue / 10;
+                                      if (selectedFrame > -1 && imgRef.current[selectedFrame] && gloableImages[selectedFrame].imageLoaded) {
+                                        const containerWidth = div3Ref.current[selectedFrame].offsetWidth;
+                                        const containerHeight = div3Ref.current[selectedFrame].offsetHeight;
+                                        const imageWidth = imgRef.current[selectedFrame].naturalWidth;
+                                        const imageHeight = imgRef.current[selectedFrame].naturalHeight;
+                                
+                                        const scaleToFit = Math.min(containerWidth / imageWidth, containerHeight / imageHeight);
+                                        const maxZoomScale = 2;
+                                        const minZoomScale = 0.5; // Adjust this to control the minimum zoom-out level
+                                
+                                        // Calculate new scale based on rangeValue
+                                        let newScale = scaleToFit + (rangeValue / 100) * (maxZoomScale - minZoomScale);
+                                
+                                        // Center the image within the container
+                                        const translateX = (containerWidth - imageWidth * newScale) / 2;
+                                        const translateY = (containerHeight - imageHeight * newScale) / 2;
+                                
                                         const value = `translate(${translateX}px, ${translateY}px) scale(${newScale})`;
-                                  
                                         div3Ref.current[selectedFrame].style.transform = value;
-                                  
+                                
                                         updatedImages[selectedFrame] = {
                                           ...updatedImages[selectedFrame],
                                           scale: value,
                                           scaleValue: rangeValue,
                                         };
                                       } else { // Apply to all images if no frame is selected
-                                        for (let item in div3Ref.current) {
-                                          const [, translateX, translateY] = updatedImages[item].scale.match(/translate\((-?\d+)px,\s*(-?\d+)px\)/) || ['translate(0px, 0px)', 0, 0];
-                                  
-                                          const newScale = 1 + rangeValue / 10;
-                                          const value = `translate(${translateX}px, ${translateY}px) scale(${newScale})`;
-                                  
-                                          div3Ref.current[item].style.transform = value;
-                                          updatedImages[item] = {
-                                            ...updatedImages[item],
-                                            scale: value,
-                                            scaleValue: rangeValue,
-                                          };
+                                            for (let item in div3Ref.current) {
+                                                const [, translateX, translateY] = updatedImages[item].scale.match(/translate\((-?\d+)px,\s*(-?\d+)px\)/) || ['translate(0px, 0px)', 0, 0];
+
+                                                const newScale = 1 + rangeValue / 10;
+                                                const value = `translate(${translateX}px, ${translateY}px) scale(${newScale})`;
+
+                                                div3Ref.current[item].style.transform = value;
+                                                updatedImages[item] = {
+                                                    ...updatedImages[item],
+                                                    scale: value,
+                                                    scaleValue: rangeValue,
+                                                };
+                                            }
                                         }
-                                      }
-                                      setImages(updatedImages);
-                                      gloableImages = updatedImages;
-                                      updateAndSaveImagesInLocalStorage(gloableImages);
+                                        setImages(updatedImages);
+                                        gloableImages = updatedImages;
+                                        updateAndSaveImagesInLocalStorage(gloableImages);
                                     }
-                                  }}
-                                  updateMat = {(mat) => {
+                                }}
+                                updateMat={(mat) => {
                                     console.log('div3Ref', div3Ref);
                                     if (div3Ref.current && div3Ref.current.length > 0) {
-                                      const updatedImages = [...gloableImages];
-                                      if (selectedFrame > -1) {
-                                        const splitt = updatedImages[selectedFrame].div3Class.split(" ");
-                                        div3Ref.current[selectedFrame].className = `${mat} ${splitt[1]}`;
-                                  
-                                        updatedImages[selectedFrame] = {
-                                          ...updatedImages[selectedFrame],
-                                          div3Class: `${mat} ${splitt[1]}`,
-                                        };
-                                      } else {
-                                        for (let item in div3Ref.current) {
-                                          const splitt = updatedImages[item].div3Class.split(" ");
-                                          div3Ref.current[item].className = `${mat} ${splitt[1]}`;
-                                  
-                                          updatedImages[item] = {
-                                            ...updatedImages[item],
-                                            div3Class: `${mat} ${splitt[1]}`,
-                                          };
+                                        const updatedImages = [...gloableImages];
+                                        if (selectedFrame > -1) {
+                                            const splitt = updatedImages[selectedFrame].div3Class.split(" ");
+                                            div3Ref.current[selectedFrame].className = `${mat} ${splitt[1]}`;
+
+                                            updatedImages[selectedFrame] = {
+                                                ...updatedImages[selectedFrame],
+                                                div3Class: `${mat} ${splitt[1]}`,
+                                            };
+                                        } else {
+                                            for (let item in div3Ref.current) {
+                                                const splitt = updatedImages[item].div3Class.split(" ");
+                                                div3Ref.current[item].className = `${mat} ${splitt[1]}`;
+
+                                                updatedImages[item] = {
+                                                    ...updatedImages[item],
+                                                    div3Class: `${mat} ${splitt[1]}`,
+                                                };
+                                            }
                                         }
-                                      }
-                                      setImages(updatedImages);
-                                      gloableImages = updatedImages;
-                                      updateAndSaveImagesInLocalStorage(gloableImages);
+                                        setImages(updatedImages);
+                                        gloableImages = updatedImages;
+                                        updateAndSaveImagesInLocalStorage(gloableImages);
                                     }
-                                  }}
-                                  
-                                  updateEffect = {(effect) => {
+                                }}
+
+                                updateEffect={(effect) => {
                                     console.log("updateEffect called from BottomSelector:", effect);
                                     // console.log('div3Ref filter', div3Ref.current);
                                     if (div3Ref.current && div3Ref.current.length > 0) {
-                                      const updatedImages = [...gloableImages];
-                                      console.log("updatedImages bs", updatedImages);
-                                      if (selectedFrame > -1) {
-                                        const splitt = updatedImages[selectedFrame].div3Class.split(" ");
-                                        div3Ref.current[selectedFrame].className = `${splitt[0]} ${effect}`;
-                                        console.log("Effect state updated from updateeffect func:", effect);
-                                  
-                                        updatedImages[selectedFrame] = {
-                                          ...updatedImages[selectedFrame],
-                                          div3Class: `${splitt[0]} ${effect}`,
-                                        };
-                                      } else {
-                                        for (let item in div3Ref.current) {
-                                          const splitt = updatedImages[item].div3Class.split(" ");
-                                          div3Ref.current[item].className = `${splitt[0]} ${effect}`;
-                                          console.log("Effect state updated from updateeffect func:", effect);
-                                  
-                                          updatedImages[item] = {
-                                            ...updatedImages[item],
-                                            div3Class: `${splitt[0]} ${effect}`,
-                                          };
+                                        const updatedImages = [...gloableImages];
+                                        console.log("updatedImages bs", updatedImages);
+                                        if (selectedFrame > -1) {
+                                            const splitt = updatedImages[selectedFrame].div3Class.split(" ");
+                                            div3Ref.current[selectedFrame].className = `${splitt[0]} ${effect}`;
+                                            console.log("Effect state updated from updateeffect func:", effect);
+
+                                            updatedImages[selectedFrame] = {
+                                                ...updatedImages[selectedFrame],
+                                                div3Class: `${splitt[0]} ${effect}`,
+                                            };
+                                        } else {
+                                            for (let item in div3Ref.current) {
+                                                const splitt = updatedImages[item].div3Class.split(" ");
+                                                div3Ref.current[item].className = `${splitt[0]} ${effect}`;
+                                                console.log("Effect state updated from updateeffect func:", effect);
+
+                                                updatedImages[item] = {
+                                                    ...updatedImages[item],
+                                                    div3Class: `${splitt[0]} ${effect}`,
+                                                };
+                                            }
                                         }
-                                      }
-                                      setImages(updatedImages);
-                                      gloableImages = updatedImages;
-                                      updateAndSaveImagesInLocalStorage(gloableImages);
+                                        setImages(updatedImages);
+                                        gloableImages = updatedImages;
+                                        updateAndSaveImagesInLocalStorage(gloableImages);
                                     }
-                                  }}
+                                }}
                                 updateDiv={(frameClass, subFrame, text) => {
                                     const updatedImages = [...gloableImages];
                                     if (selectedFrame > -1) {
@@ -507,7 +513,7 @@ const Frames = () => {
                                             const tempData = gloableImages.map((item, subIndex) => {
                                                 const tempData = { ...item };
                                                 if (subIndex === index) {
-                                                    tempData.sticker[sticketIndex].size = data;
+                                                    tempData.sticker[sticketIndex].size1 = data;
                                                 }
                                                 return tempData;
                                             });
@@ -559,143 +565,195 @@ const Frames = () => {
     );
 };
 var frameClassGloable;
-  var subFrameGloable;
-  var rangeValueGloable = "1";
-  var effectGloable, frameSizeGloable;
-  export const BottomSelector = ({
-      onPlusClick,
-      updateImageData,
-      updateEffect,
-      updateDiv,
-      selectedFrame,
-      updateText,
-      updateMat,
-      value,
-      setValue,
-      updateRange,
-  }) => {
-      const { width } = useWindowDimensions();
-      const [type, setType] = useState("");
-      const [frame, setFrame] = useState(-1);
-      const [effect, setEffect] = useState(-1);
-      const [mat, setMat] = useState(-1);
-      const [sticker, setSticker] = useState(null);
-      const [text, setText] = useState(-1);
-      const [rangeValue, setRangeValue] = useState(-1);
-      const marginRight = { marginRight: 30 };
-      const imageSize = 22;
-  
-      useEffect(() => {
-          if (type === "crop" && selectedFrame > -1) {
-              console.log(selectedFrame)
-              console.log('globalImages', gloableImages)
-              setRangeValue(gloableImages[selectedFrame].scaleValue);
-          }
-      }, [type, selectedFrame]);
-      useEffect(() => {
-          if (selectedFrame == -1) {
-              rangeValueGloable = rangeValue;
-          }
-      }, [selectedFrame, rangeValue]);
-  
-      useEffect(() => {
-          if (sticker) {
-              updateImageData(sticker);
-          }
-      }, [sticker]);
-      useEffect(() => {
-          effectGloable = effect;
-          updateEffect(effectGloable)
-          console.log("Effect changed in BottomSelector:", effect);
-      }, [effect]);
-  
-      useEffect(() => {
-          if (frame != -1) {
-              frameClassGloable = frame === 0 ? "frame-one" : frame === 1 ? "frame-two" : "frame-three";
-              subFrameGloable = frame == 1 ? "sub-frame-inner sub-frame" : frame === 2 ? "sub-frame-inner sub-frame-wood" : "sub-frame-inner";
-              updateDiv(frameClassGloable, subFrameGloable);
-          }
-      }, [frame]);
-  
-      useEffect(() => {
-          if (text != -1) {
-              updateText(text);
-          }
-      }, [text]);
-  
-      useEffect(() => {
-          if (rangeValue != -1) {
-              updateRange(rangeValue);
-          }
-      }, [rangeValue]);
-  
-      useEffect(() => {
-          if (effect != -1) {
-              effectGloable = effect;
-              updateEffect(effectGloable);
-          }
-      }, [effect]);
-  
-      useEffect(() => {
-          if (mat != -1) {
-              frameSizeGloable = mat === 0 ? "frame-image-large" : mat === 1 ? "frame-image-medium" : "frame-image-small";
-              updateMat(frameSizeGloable);
-          }
-      }, [mat]);
-      const stickerListRef = useRef(null);
-  
-      const handleMouseWheel = (e) => {
-          const delta = e.deltaY || e.detail || e.wheelDelta;
-  
-          if (stickerListRef.current) {
-              stickerListRef.current.scrollLeft += delta;
-          }
-      };
-      if (type === "frame") {
-          return (
-              <div className="ToolBox Frame">
-                  <div
-                      className={`toolContent ${frame === 0 ? "activeEffect" : ""}`}
-                      onClick={() => setFrame(0)}
-                  >
-                      <img src={BlackFrameIcon} width={60} height={60} alt="FrameIcon" />
-                      <span>Black</span>
-                  </div>
-                  <div
-                      className={`toolContent ${frame === 1 ? "activeEffect" : ""}`}
-                      onClick={() => setFrame(1)}
-                  >
-                      <img src={WhiteFrameIcon} width={60} height={60} alt="EffectIcon" />
-                      <span>White</span>
-                  </div>
-                  <div
-                      className={`toolContent ${frame === 2 ? "activeEffect" : ""}`}
-                      onClick={() => setFrame(2)}
-                  >
-                      <img src={FrameLessIcon} width={60} height={60} alt="MatIcon" />
-                      <span>Wood</span>
-                  </div>
-                  <div onClick={() => setType("")} className="goback_cta">
-                      Go Back
-                  </div>
-              </div>
-          );
-      } else if (type === "effect") {
-          return (
-              <div className="ToolBox Effect">
-                  <div
-                      className={`toolContent ${effect === "" ? "activeEffect" : ""}`}
-                      onClick={() => setEffect("")}
-                  >
-                      <img src={SamplePicIcon} width={60} height={60} alt="FrameIcon" />
-                      <span style={{
-                          color: effect === '' ? '#f09c01' : 'black'
-                      }}>Normal</span>
-                  </div>
-                  <div
-                      className={`toolContent ${effect === "filter-willow" ? "activeEffect" : ""}`}
-                      onClick={() => {
-  
+var subFrameGloable;
+var rangeValueGloable = "1";
+var effectGloable, frameSizeGloable;
+export const BottomSelector = ({
+    onPlusClick,
+    updateImageData,
+    updateEffect,
+    updateDiv,
+    selectedFrame,
+    updateText,
+    updateMat,
+    value,
+    setValue,
+    updateRange,
+    size1,
+    setSize1,
+    onSizeButtonClick
+}) => {
+    const { width } = useWindowDimensions();
+    const [type, setType] = useState("");
+    const [frame, setFrame] = useState(-1);
+    const [effect, setEffect] = useState(-1);
+    const [mat, setMat] = useState(-1);
+    const [sticker, setSticker] = useState(null);
+    const [text, setText] = useState(-1);
+    const [rangeValue, setRangeValue] = useState(-1);
+    const marginRight = { marginRight: 30 };
+    const imageSize = 22;
+
+    const [frameSizes, setFrameSizes] = useState([]);
+
+    useEffect(() => {
+        // Fetch frame sizes from the backend
+        const fetchFrameSizes = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/getAllFrames');
+                setFrameSizes(response.data.map(frame => frame.size));
+            } catch (error) {
+                console.error('Error fetching frame sizes:', error);
+                // Handle the error appropriately (e.g., display an error message)
+            }
+        };
+
+        fetchFrameSizes();
+    }, []);
+
+    useEffect(() => {
+        if (type === "crop" && selectedFrame > -1) {
+            console.log(selectedFrame)
+            console.log('globalImages', gloableImages)
+            setRangeValue(gloableImages[selectedFrame].scaleValue);
+        }
+    }, [type, selectedFrame]);
+
+    useEffect(() => {
+        if (selectedFrame == -1) {
+            rangeValueGloable = rangeValue;
+        }
+    }, [selectedFrame, rangeValue]);
+
+    useEffect(() => {
+        if (sticker) {
+            updateImageData(sticker);
+        }
+    }, [sticker]);
+
+    useEffect(() => {
+        effectGloable = effect;
+        updateEffect(effectGloable);
+        console.log("Effect changed in BottomSelector:", effect);
+    }, [effect]);
+
+    useEffect(() => {
+        if (frame != -1) {
+            frameClassGloable = frame === 0 ? "frame-one" : frame === 1 ? "frame-two" : "frame-three";
+            subFrameGloable = frame == 1 ? "sub-frame-inner sub-frame" : frame === 2 ? "sub-frame-inner sub-frame-wood" : "sub-frame-inner";
+            updateDiv(frameClassGloable, subFrameGloable);
+        }
+    }, [frame]);
+
+    useEffect(() => {
+        if (text != -1) {
+            updateText(text);
+        }
+    }, [text]);
+
+    useEffect(() => {
+        if (rangeValue != -1) {
+            updateRange(rangeValue);
+        }
+    }, [rangeValue]);
+
+    useEffect(() => {
+        if (effect != -1) {
+            effectGloable = effect;
+            updateEffect(effectGloable);
+        }
+    }, [effect]);
+
+    useEffect(() => {
+        if (mat != -1) {
+            frameSizeGloable = mat === 0 ? "frame-image-large" : mat === 1 ? "frame-image-medium" : "frame-image-small";
+            updateMat(frameSizeGloable);
+        }
+    }, [mat]);
+
+    const stickerListRef = useRef(null);
+
+    const handleMouseWheel = (e) => {
+        const delta = e.deltaY || e.detail || e.wheelDelta;
+
+        if (stickerListRef.current) {
+            stickerListRef.current.scrollLeft += delta;
+        }
+    };
+
+    const handleChangeSize = (size) => {
+        setType("size");
+        setSize1(size);
+        console.log(size1);
+    };
+
+    if (type === "frame") {
+        return (
+            <div className="ToolBox Frame">
+                <div
+                    className={`toolContent ${frame === 0 ? "activeEffect" : ""}`}
+                    onClick={() => setFrame(0)}
+                >
+                    <img src={BlackFrameIcon} width={60} height={60} alt="FrameIcon" />
+                    <span>Black</span>
+                </div>
+                <div
+                    className={`toolContent ${frame === 1 ? "activeEffect" : ""}`}
+                    onClick={() => setFrame(1)}
+                >
+                    <img src={WhiteFrameIcon} width={60} height={60} alt="EffectIcon" />
+                    <span>White</span>
+                </div>
+                <div
+                    className={`toolContent ${frame === 2 ? "activeEffect" : ""}`}
+                    onClick={() => setFrame(2)}
+                >
+                    <img src={FrameLessIcon} width={60} height={60} alt="MatIcon" />
+                    <span>Wood</span>
+                </div>
+                <div onClick={() => setType("")} className="goback_cta">
+                    Go Back
+                </div>
+            </div>
+        );
+    }
+
+    if (type === "size") {
+        return (
+            <div className="ToolBox Frame">
+                {frameSizes.map((sizeOption, index) => (
+                    <div
+                        key={sizeOption}
+                        className={`toolContent ${size1 === sizeOption ? "activeEffect" : ""}`}
+                        onClick={() => { setSize1(sizeOption); handleChangeSize(sizeOption); }}
+                    >
+                        <img src={index === 0 ? BlackFrameIcon : (index === 1 ? WhiteFrameIcon : FrameLessIcon)} width={60} height={60} alt="FrameIcon" />
+                        <span>{sizeOption}</span>
+                    </div>
+                ))}
+                <div onClick={() => setType("")} className="goback_cta">
+                    Go Back
+                </div>
+            </div>
+        );
+    }
+
+    else if (type === "effect") {
+        return (
+            <div className="ToolBox Effect">
+                <div
+                    className={`toolContent ${effect === "" ? "activeEffect" : ""}`}
+                    onClick={() => setEffect("")}
+                >
+                    <img src={SamplePicIcon} width={60} height={60} alt="FrameIcon" />
+                    <span style={{
+                        color: effect === '' ? '#f09c01' : 'black'
+                    }}>Normal</span>
+                </div>
+                <div
+                    className={`toolContent ${effect === "filter-willow" ? "activeEffect" : ""}`}
+                    onClick={() => {
+
                         setEffect("filter-willow");
                         updateEffect("filter-willow");
                         console.log(gloableImages); // Log the gloableImages state
@@ -876,7 +934,7 @@ var frameClassGloable;
                 <div className="toolContent">
                     <input
                         type="range"
-                        min="1"
+                        min="-5"
                         max="100"
                         className="slider"
                         id="myRange"
@@ -904,6 +962,10 @@ var frameClassGloable;
             <div className="toolContent" onClick={() => setType("frame")}>
                 <img src={FrameIcon} alt="FrameIcon" />
                 <span>Frames</span>
+            </div>
+            <div className="toolContent" onClick={() => setType("size")}>
+                <img src={FrameIcon} alt="FrameIcon" />
+                <span>Size</span>
             </div>
             <div className="toolContent" onClick={() => {
                 setType("effect");
@@ -945,197 +1007,198 @@ var frameClassGloable;
     </svg>
     <span style={{ color: "#ff5814" }}>Add Frame</span>
 </div> */}
-</div>
-);
+        </div>
+    );
 };
 
 export const FrameContainer = React.forwardRef((props, ref) => {
-const {
-    item,
-    index,
-    onDelete,
-    onDeleteSticker,
-    div1Ref,
-    div2Ref,
-    divTextRef,
-    div3Ref,
-    onSizePass,
-    onPosition,
-    onTextPosition,
-    selectedFrame,
-    onSelectedFrame,
-    divMainRef,
-    deleteText,
-    cross,
-    setCross,
-    imgRef
-} = props;
-const warnRef = useRef();
+    const {
+        item,
+        index,
+        onDelete,
+        onDeleteSticker,
+        div1Ref,
+        div2Ref,
+        divTextRef,
+        div3Ref,
+        onSizePass,
+        onPosition,
+        onTextPosition,
+        selectedFrame,
+        onSelectedFrame,
+        divMainRef,
+        deleteText,
+        cross,
+        setCross,
+        imgRef
+    } = props;
+    const warnRef = useRef();
 
-const { size, numberOfFrames } = useParams();
-const frameDimensions = {
-    width: `${item.width}px`,
-    height: `${item.height}px`,
-    justifyContent: "center",
-    alignItems: "center",
-};
+    const { size, numberOfFrames } = useParams();
+    const frameDimensions = {
+        width: `${item.width}px`,
+        height: `${item.height}px`,
+        justifyContent: "center",
+        alignItems: "center",
+    };
 
-const handleAddImageClick = () => {
-    ref.current.click();
-};
+    const handleAddImageClick = () => {
+        ref.current.click();
+    };
 
-return (
-    <div
-        className={`FrameContainer ${selectedFrame == index ? "SelectedFrame" : ""}`}
-    >
+    return (
         <div
-            className="ImageContainer"
-            ref={(temp) => {
-                divMainRef.current[index] = temp;
-            }}
-            style={{
-                padding: item.isShowBoundry ? 0 : 10,
-                ...frameDimensions,
-                position: "relative",
-                overflow: "hidden",
-            }}
+            className={`FrameContainer ${selectedFrame == index ? "SelectedFrame" : ""}`}
         >
             <div
+                className="ImageContainer"
                 ref={(temp) => {
-                    div1Ref.current[index] = temp;
+                    divMainRef.current[index] = temp;
                 }}
-                className={item.div1Class}
+                style={{
+                    padding: item.isShowBoundry ? 0 : 10,
+                    ...frameDimensions,
+                    position: "relative",
+                    overflow: "hidden",
+                }}
             >
                 <div
-                    className={item.div2Class}
                     ref={(temp) => {
-                        div2Ref.current[index] = temp;
+                        div1Ref.current[index] = temp;
                     }}
+                    className={item.div1Class}
                 >
                     <div
-                        className={item.div3Class}
-                        style={{
-                            overflow: "hidden",
-                            position: "relative",
-                        }}
-                        ref={(reff) => {
-                            div3Ref.current[index] = reff;
+                        className={item.div2Class}
+                        ref={(temp) => {
+                            div2Ref.current[index] = temp;
                         }}
                     >
                         <div
+                            className={item.div3Class}
                             style={{
-                                width: "100%",
-                                height: "100%",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
+                                overflow: "hidden",
+                                position: "relative",
+                            }}
+                            ref={(reff) => {
+                                div3Ref.current[index] = reff;
                             }}
                         >
-                            {item.localUrl ? (
-                                <DragableImage
-                                    item={item}
-                                    ref={(el) => (imgRef.current[index] = el?.current?.imgRef?.current)}
-                                    ref2={ref}
-                                    warnRef={warnRef}
-                                    index={index}
-                                    onTransform={(value) => {
-                                        gloableImages[index].scale = value;
-                                    }}
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "contain",
-                                    }}
-                                />
-                            ) : (
-                                <div
-                                    className="addImagePlaceholder"
-                                    onClick={handleAddImageClick}
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    Add Image
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    {(
-                        <div style={{ position: "absolute" }}>
-                            <TextDraggable
-                                item={item}
-                                index={index}
-                                divTextRef={divTextRef}
-                                onTextPosition={onTextPosition}
-                                deleteText={deleteText}
-                                setCross={setCross}
-                                cross={cross}
-                            />
-                        </div>
-                    )}
-
-                    {item.sticker.length > 0 &&
-                        item.sticker.map((subItem, sticketIndex) => {
-                            return (
-                                <ResizeableContainer
-                                    key={Math.random().toString()}
-                                    onDelete={() => {
-                                        onDeleteSticker(index, subItem, sticketIndex);
-                                    }}
-                                    onSizePass={(size) => {
-                                        onSizePass(index, size, sticketIndex);
-                                    }}
-                                    onPosition={(position) => {
-                                        onPosition(index, position, sticketIndex);
-                                    }}
-                                    sizePass={subItem.size}
-                                    position={subItem.position}
-                                    div2Ref={div2Ref}
-                                    index={index}
-                                    isShowBoundry={item.isShowBoundry}
-                                >
-                                    <img
-                                        src={subItem.img}
-                                        alt="sticker"
-                                        draggable="false"
+                            <div
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                            >
+                                {item.localUrl ? (
+                                    <DragableImage
+                                        item={item}
+                                        ref={(el) => (imgRef.current[index] = el?.current?.imgRef?.current)}
+                                        ref2={ref}
+                                        warnRef={warnRef}
+                                        index={index}
+                                        onTransform={(value) => {
+                                            gloableImages[index].scale = value;
+                                        }}
                                         style={{
                                             width: "100%",
                                             height: "100%",
+                                            objectFit: "contain",
                                         }}
                                     />
-                                </ResizeableContainer>
-                            );
-                        })}
+                                ) : (
+                                    <div
+                                        className="addImagePlaceholder"
+                                        onClick={handleAddImageClick}
+                                        style={{
+                                            width: "100%",
+                                            height: "100%",
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        Add Image
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        {(
+                            <div style={{ position: "absolute" }}>
+                                <TextDraggable
+                                    item={item}
+                                    index={index}
+                                    divTextRef={divTextRef}
+                                    onTextPosition={onTextPosition}
+                                    deleteText={deleteText}
+                                    setCross={setCross}
+                                    cross={cross}
+                                />
+                            </div>
+                        )}
+
+                        {item.sticker.length > 0 &&
+                            item.sticker.map((subItem, sticketIndex) => {
+                                return (
+                                    <ResizeableContainer
+                                        key={Math.random().toString()}
+                                        onDelete={() => {
+                                            onDeleteSticker(index, subItem, sticketIndex);
+                                        }}
+                                        onSizePass={(size) => {
+                                            onSizePass(index, size, sticketIndex);
+                                        }}
+                                        onPosition={(position) => {
+                                            onPosition(index, position, sticketIndex);
+                                        }}
+                                        sizePass={subItem.size}
+                                        position={subItem.position}
+                                        div2Ref={div2Ref}
+                                        index={index}
+                                        isShowBoundry={item.isShowBoundry}
+
+                                    >
+                                        <img
+                                            src={subItem.img}
+                                            alt="sticker"
+                                            draggable="false"
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                            }}
+                                        />
+                                    </ResizeableContainer>
+                                );
+                            })}
+                    </div>
+                </div>
+            </div>
+            <div className="frameMessage">
+                <span className="frameImageError" ref={warnRef}>{""}</span>
+                <div>
+                    <span
+                        onClick={() => {
+                            if (selectedFrame == index) {
+                                onSelectedFrame(-1);
+                            } else onSelectedFrame(index);
+                        }}
+                        className={
+                            selectedFrame == index ? "badge badge-success" : "badge badge-secondary"
+                        }
+                    >
+                        {selectedFrame == index ? "Selected" : "Select"}
+                    </span>
+                    <span onClick={() => onDelete(index)} className="badge badge-danger">
+                        {"Delete"}
+                    </span>
                 </div>
             </div>
         </div>
-        <div className="frameMessage">
-            <span className="frameImageError" ref={warnRef}>{""}</span>
-            <div>
-                <span
-                    onClick={() => {
-                        if (selectedFrame == index) {
-                            onSelectedFrame(-1);
-                        } else onSelectedFrame(index);
-                    }}
-                    className={
-                        selectedFrame == index ? "badge badge-success" : "badge badge-secondary"
-                    }
-                >
-                    {selectedFrame == index ? "Selected" : "Select"}
-                </span>
-                <span onClick={() => onDelete(index)} className="badge badge-danger">
-                    {"Delete"}
-                </span>
-            </div>
-        </div>
-    </div>
-);
+    );
 });
 
 export default Frames;

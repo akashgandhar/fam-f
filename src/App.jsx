@@ -1,5 +1,7 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate, useLocation, useParams } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import axios from 'axios';
 import Home from "./screens/home";
 import Terms from "./screens/Terms";
 import FAQ from "./components/faq";
@@ -12,7 +14,6 @@ import PrivacyPolicy from "./screens/Privacy";
 import Frames from "./screens/Frames";
 import Checkout from "./components/checkout";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
 import { getGidtCardAction, initPaymentAction, isVerifiedAction, paymentGidtCardAction, showOTPAction } from "./redux/actions/auth";
 import { loaderAction, showCheckOutAction, showLoginAction } from "./redux/actions/global";
 import Payment from "./components/payment";
@@ -27,24 +28,39 @@ import ReturnPolicy from "./screens/Return";
 import ShippingPolicy from "./screens/Shipping";
 import Gifts from "./screens/Gifts";
 import Framesize from "./screens/Framesize";
-import FrameDisplay from "./screens/FrameDisplay";
-
-// import ChooseFileOptions from "./components/chooseFileOptions";
+import { FrameProvider, useFrameContext } from "./context/FrameContext";
 
 function App() {
   const dispatch = useDispatch();
   const showLogin = useSelector(state => state.globalReducer.showLogin);
+  const { isLoading, validFrameNumbers, routeIsValid } = useFrameContext();
+  const { numberOfFrames } = useParams();
+  const location = useLocation();
+
+  // Introduce a new state variable that depends on routeIsValid
+  const [framesKey, setFramesKey] = useState(0);
+
   useEffect(() => {
     setGloableDispatch(dispatch);
     dispatch(initPaymentAction(null));
     dispatch(loaderAction(false));
     dispatch(showCheckOutAction(false));
     dispatch(isVerifiedAction(false));
-    dispatch(showOTPAction(false))
+    dispatch(showOTPAction(false));
     dispatch(showLoginAction(false));
-    dispatch(paymentGidtCardAction(null))
+    dispatch(paymentGidtCardAction(null));
     dispatch(getGidtCardAction());
-  }, [])
+
+    // Log changes in `routeIsValid` (optional)
+    console.log('routeIsValid updated in app.js:', routeIsValid);
+
+    // Update framesKey whenever routeIsValid changes
+    setFramesKey(prevKey => prevKey + 1);
+  }, [isLoading, numberOfFrames, validFrameNumbers, routeIsValid]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -52,9 +68,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
-        <Route path="/frames/:size/:numberOfFrames" element={<Frames />} />
-        <Route path="/framesize" element={<Framesize />} />
-        {/* <Route path="/framedisplay/:size/:numberOfFrames" element={<FrameDisplay />} /> */}
+        <Route path="/frames/:numberOfFrames" element={routeIsValid ? <Frames key={framesKey} /> : <Notfound/>} />
         <Route path="/refund" element={<RefundPolicy />} />
         <Route path="/return" element={<ReturnPolicy />} />
         <Route path="/shipping" element={<ShippingPolicy />} />
@@ -70,7 +84,6 @@ function App() {
       <ChatBot />
       <PromoCode />
       <Checkout />
-      {/* <ChooseFileOptions /> */}
       <Payment />
       <Loader />
       <Toaster />
@@ -80,10 +93,3 @@ function App() {
 }
 
 export default App;
-
-/* TODO
-facebook login  .....client documentation pending
-shipping api ....KYC pending from client side
-OTP verify ..... SMS pending from client side
-image crop movement bug
-*/

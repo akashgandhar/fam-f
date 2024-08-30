@@ -11,6 +11,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { persistor, store } from './redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
+import { FrameProvider } from './context/FrameContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -18,7 +19,9 @@ root.render(
     <PersistGate loading={null} persistor={persistor}>
       <GoogleOAuthProvider clientId="450231572339-a8anak5l1bnqehkdsm30846dabfu1e74.apps.googleusercontent.com">
         <BrowserRouter>
-          <App />
+          <FrameProvider >
+            <App />
+          </FrameProvider>
         </BrowserRouter>
       </GoogleOAuthProvider>
     </PersistGate>

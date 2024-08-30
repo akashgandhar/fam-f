@@ -9,6 +9,7 @@ import { getFramesAll } from '../../utils/globleFunc';
 import OTP from '../otp';
 import authAxios from '../../redux/axios';
 
+
 const Checkout = () => {
     const dispatch = useDispatch();
     const showCheckOut = useSelector(state => state.globalReducer.showCheckOut)
@@ -85,6 +86,7 @@ const Checkout = () => {
 
         fetchCountries();
     }, []);
+    
 
     const handleCountryChange = (event) => {
         const selectedCountry = event.target.value;
