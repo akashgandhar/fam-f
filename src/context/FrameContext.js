@@ -16,7 +16,7 @@ export const FrameProvider = ({ children }) => {
       try {
         const response = await axios.get('http://localhost:8000/getAllFrameNumbers');
         setValidFrameNumbers(response.data.map(item => item.numberOfFrames));
-        console.log('validFrameNumbers:', response.data.map(item => item.numberOfFrames));
+        // console.log('validFrameNumbers:', response.data.map(item => item.numberOfFrames));
         setTimeout(() => {
             setIsLoading(false);
         }, 1000);
@@ -29,14 +29,6 @@ export const FrameProvider = ({ children }) => {
     fetchFrameNumbers();
   }, []);
 
-  useEffect(() => {
-    console.log('Loading from context:', isLoading)
-  }, [isLoading])
-
-  useEffect(() => {
-    console.log('validFrameNumbers from context:', validFrameNumbers);
-  }
-  , [validFrameNumbers]);
 
   // Extract `numberOfFrames` from the current location's pathname
   const numberOfFrames = location.pathname.split('/').pop(); 
@@ -48,9 +40,9 @@ export const FrameProvider = ({ children }) => {
       }
 
       const parsedNumberOfFrames = parseInt(numberOfFrames, 10);
-      console.log('parsedNumberOfFrames:', parsedNumberOfFrames);
-      console.log('validFrameNumbers:', validFrameNumbers);
-      console.log('validFrameNumbers.includes(parsedNumberOfFrames)', validFrameNumbers.includes(parsedNumberOfFrames));
+    //   console.log('parsedNumberOfFrames:', parsedNumberOfFrames);
+    //   console.log('validFrameNumbers:', validFrameNumbers);
+    //   console.log('validFrameNumbers.includes(parsedNumberOfFrames)', validFrameNumbers.includes(parsedNumberOfFrames));
       return validFrameNumbers.includes(parsedNumberOfFrames);
     };
 
@@ -58,7 +50,7 @@ export const FrameProvider = ({ children }) => {
   }, [isLoading, numberOfFrames, validFrameNumbers]);
 
   useEffect(() => {
-    console.log('routeIsValid updated:', routeIsValid);
+    // console.log('routeIsValid updated:', routeIsValid);
   }, [routeIsValid, validFrameNumbers]); 
 
   return (

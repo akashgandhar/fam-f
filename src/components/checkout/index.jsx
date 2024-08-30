@@ -1,18 +1,19 @@
-import HomeIcon from '../../assets/images/home-icon.png';
-import GiftIcon from '../../assets/images/gift-icn.png';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { showCheckOutAction } from '../../redux/actions/global';
-import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { checkPriceAction, sendOTPAction, updateAddressAction } from '../../redux/actions/auth';
 import { getFramesAll } from '../../utils/globleFunc';
 import OTP from '../otp';
 import authAxios from '../../redux/axios';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+import { useFrameContext } from '../../context/FrameContext';
+import { set } from 'firebase/database';
 
-
-const Checkout = () => {
+const Checkout = ({ numberOfFrames }) => {
     const dispatch = useDispatch();
-    const showCheckOut = useSelector(state => state.globalReducer.showCheckOut)
+    const showCheckOut = useSelector(state => state.globalReducer.showCheckOut);
     const addressData = useSelector(state => state.userReducer.addressData);
     const profile = useSelector(state => state.userReducer.user);
     const priceData = useSelector(state => state.userReducer.priceData);
@@ -27,47 +28,53 @@ const Checkout = () => {
     const [pincodeValue, setPincodeValue] = useState(addressData?.pincode);
     const [addressValue, setAddressValue] = useState(addressData?.street);
     const [promoCodeValue, setPromoCodeValue] = useState('');
-    const [disable, setDisable] = useState(false)
-
-
+    const [disable, setDisable] = useState(false);
     const [countriesData, setCountriesData] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState("");
     const [selectedState, setSelectedState] = useState("");
     const [selectedCity, setSelectedCity] = useState("");
     const [statesData, setStatesData] = useState([]);
     const [citiesData, setCitiesData] = useState([]);
-
-    // --- Coupoon and Promocode
     const [couponValue, setCouponValue] = useState('');
+    const [frameNumbers, setFrameNumbers] = useState([]);
+    const [isLoadingFrameNumbers, setIsLoadingFrameNumbers] = useState(true);
+    const { isLoading, validFrameNumbers, routeIsValid } = useFrameContext();
+
+    useEffect(() => {
+        console.log('numberOfFrame from checkout', numberOfFrames);
+    }, [numberOfFrames, showCheckOut, routeIsValid]);
+
+
+
+
+
     useEffect(() => {
         if (showCheckOut) {
-            dispatch(checkPriceAction(
-                {
-                    "promo": promoCodeValue,
-                    "products": getFramesAll(),
-                    "coupon": couponValue
-                }
-            ))
-        }
-        else {
+            dispatch(checkPriceAction({
+                "promo": promoCodeValue,
+                "products": getFramesAll(),
+                "coupon": couponValue
+            }));
+        } else {
             setPromoCodeValue('');
         }
-    }, [showCheckOut, promoCodeValue, couponValue])
+    }, [showCheckOut, promoCodeValue, couponValue]);
+
     useEffect(() => {
         if (profile?.number !== "" && profile?.number !== undefined) {
-
-            setPhoneValue(profile?.number)
-            setDisable(true)
+            setPhoneValue(profile?.number);
+            setDisable(true);
         }
-    }, [profile])
-    // ------ Show hhide3 HBuitton fucnitonality
+    }, [profile]);
+
     const [isChecked, setIsChecked] = useState(false);
 
     const handleCheckboxChange = () => {
         setIsChecked(!isChecked);
         setPromoCodeValue('');
-        setCouponValue('')
+        setCouponValue('');
     };
+
     const handleInputPhone = (e) => {
         const value = e.target.value.replace(/\D/g, '');
         setPhoneValue(value.substring(0, 10));
@@ -86,7 +93,38 @@ const Checkout = () => {
 
         fetchCountries();
     }, []);
-    
+
+    useEffect(() => {
+        const fetchFrameNumbers = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/getAllFrameNumbers');
+                setFrameNumbers(response.data);
+                // console.log('FrameNumbers',frameNumbers)
+                setIsLoadingFrameNumbers(false); // Set loading to false after data is fetched
+            } catch (error) {
+                console.error('Error fetching frame numbers:', error);
+                setIsLoadingFrameNumbers(false);
+            }
+        };
+        fetchFrameNumbers();
+    }, []);
+
+    useEffect(() => {
+        setStateValue(selectedState);
+        setCityValue(selectedCity);
+      }, [selectedState, selectedCity]);
+
+    const parsedint = parseInt(numberOfFrames, 10);
+    // console.log(numberOfFrames);
+    // console.log('parsedint', parsedint);
+
+    const framePrice = frameNumbers.find(frame => frame.numberOfFrames === parseInt(numberOfFrames, 10))?.price || 0;
+    // console.log('framePrice', framePrice);
+    const getTileCost = () => {
+        console.log('frameprice and numberofframes', framePrice, numberOfFrames);
+        console.log('framePrice * parseInt(numberOfFrames, 10)',framePrice * parseInt(numberOfFrames, 10))
+        return framePrice * parseInt(numberOfFrames, 10);
+    };
 
     const handleCountryChange = (event) => {
         const selectedCountry = event.target.value;
@@ -149,53 +187,44 @@ const Checkout = () => {
     };
 
     const onSubmit = async () => {
+        const reg = /^\S+@\S+\.\S+$/;
 
-        const reg = /^\S+@\S+\.\S+$/
-
-        if (!reg.test(emailValue)) {
-            toast.error("Please enter valid email address.");
-            return
-        }
-        else if (!phoneValue || phoneValue.length < 10) {
-            toast.error("Please enter valid phone number.");
-            return
-        }
-        else if (phoneValue.startsWith("9") === false && phoneValue.startsWith("8") === false && phoneValue.startsWith("7") === false && phoneValue.startsWith("6") === false) {
-            toast.error("Please enter valid phone number which starts with 9,8,7,6.");
-            return
-        }
-        else if ((addressData?.phone != phoneValue) && !isVerified && phoneValue !== profile.number) {
-            toast.error("Please verify your number.");
-            return
-        }
-        else if (!nameValue || nameValue.length < 2) {
-            toast.error("Please enter valid first name.");
-            return
-        }
-        else if (!lastNameValue || lastNameValue.length < 2) {
-            toast.error("Please enter valid last name.");
-            return
-        }
-        else if (!stateValue || stateValue.length < 2) {
-            toast.error("Please enter valid state.");
-            return
-        }
-        else if (!cityValue || cityValue.length < 2) {
-            toast.error("Please enter valid city.");
-            return
-        }
-        else if (!pincodeValue || pincodeValue.length < 6) {
-            toast.error("Please enter valid pincode.");
-            return
-        }
-        else if (!addressValue || addressValue.length < 4) {
-            toast.error("Please enter valid address.");
-            return
-        }
-        else if (!paymentType) {
-            toast.error("Please enter payment type.");
-            return
-        }
+        // if (!reg.test(emailValue)) {
+        //     toast.error("Please enter valid email address.");
+        //     return;
+        // } else if (!phoneValue || phoneValue.length < 10) {
+        //     toast.error("Please enter valid phone number.");
+        //     return;
+        // } else if (phoneValue.startsWith("9") === false && phoneValue.startsWith("8") === false && phoneValue.startsWith("7") === false && phoneValue.startsWith("6") === false) {
+        //     toast.error("Please enter valid phone number which starts with 9,8,7,6.");
+        //     return;
+        // } 
+        // // else if ((addressData?.phone != phoneValue) && !isVerified && phoneValue !== profile.number) {
+        // //     toast.error("Please verify your number.");
+        // //     return;
+        // // } 
+        // else if (!nameValue || nameValue.length < 2) {
+        //     toast.error("Please enter valid first name.");
+        //     return;
+        // } else if (!lastNameValue || lastNameValue.length < 2) {
+        //     toast.error("Please enter valid last name.");
+        //     return;
+        // } else if (!stateValue || stateValue.length < 2) {
+        //     toast.error("Please enter valid state.");
+        //     return;
+        // } else if (!cityValue || cityValue.length < 2) {
+        //     toast.error("Please enter valid city.");
+        //     return;
+        // } else if (!pincodeValue || pincodeValue.length < 6) {
+        //     toast.error("Please enter valid pincode.");
+        //     return;
+        // } else if (!addressValue || addressValue.length < 4) {
+        //     toast.error("Please enter valid address.");
+        //     return;
+        // } else if (!paymentType) {
+        //     toast.error("Please enter payment type.");
+        //     return;
+        // }
 
         const address = {
             "email": emailValue,
@@ -207,97 +236,85 @@ const Checkout = () => {
             "city": cityValue,
             "pincode": pincodeValue,
             "state": stateValue
-        }
-        const paymentData = {
-            "promo": promoCodeValue,
-            "coupon": couponValue,
-            "products": getFramesAll(),
-            "address": address,
-            "paymentType": paymentType
-        }
+        };
+
+        // Calculate subtotal based on new UI logic
+    const subtotal = getTileCost() + (priceData?.isShippingFree ? 0 : priceData?.shippingCharges);
+
+    // Calculate discount based on new UI logic
+    const discount = priceData?.promo?.discount || priceData?.coupon || 0;
+
+    // Calculate total cost based on new UI logic
+    const totalCost = subtotal - discount + (subtotal - discount) * (priceData?.gst / 100);
+
+    const paymentData = {
+        "numberOfFrames": parseInt(numberOfFrames, 10),
+        "totalCost": totalCost ,
+        "promo": promoCodeValue,
+        "coupon": couponValue,
+        "products": getFramesAll(),
+        "address": address,
+        "paymentType": paymentType,
+        "subtotal": subtotal,
+        "discount": discount
+    };
+    console.log('paymentData', paymentData);
+    alert('Payment data: ' + JSON.stringify(paymentData, null, 2));
+
         const header = {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-        }
-
+        };
         try {
-            const result = await authAxios.post('user/order/book', paymentData,
-                {
-                    headers: header,
-                });
-            let { data } = result
+            const result = await authAxios.post('user/order/book', paymentData, {
+                headers: header
+            });
+
+            let { data } = result;
+
             if (data.success) {
-
-
                 localStorage.removeItem('family_vibes_images_data');
-                if (data?.data?.isFree) {
 
-                    window.location.href = `https://familyvibes.in/thank-you?type=order&order_id=${data?.data?.id}`
+                if (data?.data?.isFree) {
+                    window.location.href = `https://familyvibes.in/thank-you?type=order&order_id=${data?.data?.id}`;
                 }
-                data = data?.data?.data
+
+                data = data?.data?.data;
                 let urlInfo = data?.instrumentResponse?.redirectInfo;
+
                 if (urlInfo) {
                     window.location.href = urlInfo?.url;
                 }
-            }
-            else {
+            } else {
                 alert("Payment initiate error.");
             }
-
-
         } catch (error) {
             alert("Server error. Are you online under? " + error?.message);
-            // dispatch(loaderAction(false));
             return;
         }
-
-        // const paymentData = {
-        //     "promo": promoCodeValue,
-        //     "products": getFramesAll(),
-        //     "email": emailValue,
-        //     "name": nameValue,
-        //     "street": addressValue,
-        //     "country": "india",
-        //     "phone": phoneValue
-        // }
-
-        // dispatch(updateAddressAction({
-        //     "email": emailValue,
-        //     "name": nameValue,
-        //     "lastName": lastNameValue,
-        //     "street": addressValue,
-        //     "country": "india",
-        //     "phone": phoneValue,
-        //     "city": cityValue,
-        //     "pincode": pincodeValue,
-        //     "state": stateValue,
-        // }, paymentData));
 
         dispatch(showCheckOutAction(false));
     }
 
     const onSendOTPClick = () => {
-
         if (phoneValue === profile?.number) {
-            setDisable(true)
-            return
+            setDisable(true);
+            return;
         }
+
         if (!phoneValue || phoneValue.length < 10) {
             toast.error("Please enter valid phone number.");
-            return
-        }
-        else if (phoneValue.startsWith("9") === false && phoneValue.startsWith("8") === false && phoneValue.startsWith("7") === false && phoneValue.startsWith("6") === false) {
+            return;
+        } else if (phoneValue.startsWith("9") === false && phoneValue.startsWith("8") === false && phoneValue.startsWith("7") === false && phoneValue.startsWith("6") === false) {
             toast.error("Please enter valid phone number which starts with 9,8,7,6.");
-            return
+            return;
         }
+
         dispatch(sendOTPAction({
-            "phone": phoneValue,
+            "phone": phoneValue
         }));
     }
 
-    const getTileCost = (framePrice = 0) => {
-        return framePrice * getFramesAll()?.length
-    }
     return showCheckOut && (
         <div style={{
             position: 'fixed',
@@ -472,18 +489,28 @@ const Checkout = () => {
                                             </tr>
                                             <tr>
                                                 <td> Sub Total </td>
-                                                <td> {`₹` + priceData?.cost} </td>
+                                                <td>
+                                                    {`₹${getTileCost(priceData?.framePrice) + (priceData?.isShippingFree ? 0 : priceData?.shippingCharges)}`}
+                                                </td>
                                             </tr>
                                             <tr className={priceData?.coupon > 0 || priceData?.promo?.discount > 0 ? 'text-success' : ''}>
                                                 <td> Discount Applied </td>
-                                                <td> {priceData?.promo ? `-₹${priceData?.promo?.discount}` : (priceData?.coupon ? `-₹${priceData?.coupon} [${priceData?.couponN}]` : '₹0')} </td>
+                                                <td>
+                                                    {priceData?.promo
+                                                        ? `-₹${priceData?.promo?.discount}`
+                                                        : (priceData?.coupon
+                                                            ? `-₹${priceData?.coupon} [${priceData?.couponN}]`
+                                                            : '₹0')
+                                                    }
+                                                </td>
                                             </tr>
-
                                         </tbody>
                                         <tfoot className='bg-light'>
                                             <tr>
                                                 <th>Total ( {priceData?.gst}% GST is included) </th>
-                                                <th>{`₹${priceData?.totalCost}`}</th>
+                                                <th>
+                                                    {`₹${(getTileCost(priceData?.framePrice) + (priceData?.isShippingFree ? 0 : priceData?.shippingCharges)) - (priceData?.promo?.discount || priceData?.coupon || 0) + ((getTileCost(priceData?.framePrice) + (priceData?.isShippingFree ? 0 : priceData?.shippingCharges)) - (priceData?.promo?.discount || priceData?.coupon || 0)) * (priceData?.gst / 100)}`}
+                                                </th>
                                             </tr>
                                         </tfoot>
                                     </table>

@@ -49,7 +49,7 @@ const Frames = () => {
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
     const { size, numberOfFrames } = useParams();
-    console.log(numberOfFrames)
+    // console.log(numberOfFrames)
     const fileInputRef = useRef(null);
     const [size1, setSize1] = useState('1x1');
 
@@ -112,7 +112,7 @@ const Frames = () => {
             setImages(updatedImages);
             updateAndSaveImagesInLocalStorage(updatedImages);
             gloableImages = updatedImages;
-            console.log("updatedImages", updatedImages);
+            // console.log("updatedImages", updatedImages);
             dispatch(loaderAction(false));
         } else {
             console.error("No frame selected. Please select a frame before adding an image.");
@@ -176,6 +176,7 @@ const Frames = () => {
                 const url = await fileUpload(dataUrl, true);
                 const urlWF = await fileUpload(dataUrlWF, true);
                 const original_image = previousimage[item].url;
+                console.log('tempData[item]', tempData[item]);
 
                 tempData[item].frameUrl = url;
                 tempData[item].url = urlWF;
@@ -192,7 +193,9 @@ const Frames = () => {
         }
         gloableImages = tempData;
         setFramesAll(tempFinalData);
+        updateAndSaveImagesInLocalStorage(gloableImages);
         setImages(gloableImages);
+        
         dispatch(loaderAction(false));
         dispatch(showCheckOutAction(true));
         const tempData2 = [...gloableImages];
@@ -201,6 +204,7 @@ const Frames = () => {
         }
         gloableImages = tempData2;
         setImages(gloableImages);
+        console.log('tempFinalData', tempFinalData);
     };
     const [cross, setCross] = useState(false);
     const [value, setValue] = useState("");
@@ -321,7 +325,7 @@ const Frames = () => {
                                     }
                                 }}
                                 updateMat={(mat) => {
-                                    console.log('div3Ref', div3Ref);
+                                    // console.log('div3Ref', div3Ref);
                                     if (div3Ref.current && div3Ref.current.length > 0) {
                                         const updatedImages = [...gloableImages];
                                         if (selectedFrame > -1) {
@@ -350,15 +354,15 @@ const Frames = () => {
                                 }}
 
                                 updateEffect={(effect) => {
-                                    console.log("updateEffect called from BottomSelector:", effect);
+                                    // console.log("updateEffect called from BottomSelector:", effect);
                                     // console.log('div3Ref filter', div3Ref.current);
                                     if (div3Ref.current && div3Ref.current.length > 0) {
                                         const updatedImages = [...gloableImages];
-                                        console.log("updatedImages bs", updatedImages);
+                                        // console.log("updatedImages bs", updatedImages);
                                         if (selectedFrame > -1) {
                                             const splitt = updatedImages[selectedFrame].div3Class.split(" ");
                                             div3Ref.current[selectedFrame].className = `${splitt[0]} ${effect}`;
-                                            console.log("Effect state updated from updateeffect func:", effect);
+                                            // console.log("Effect state updated from updateeffect func:", effect);
 
                                             updatedImages[selectedFrame] = {
                                                 ...updatedImages[selectedFrame],
@@ -368,7 +372,7 @@ const Frames = () => {
                                             for (let item in div3Ref.current) {
                                                 const splitt = updatedImages[item].div3Class.split(" ");
                                                 div3Ref.current[item].className = `${splitt[0]} ${effect}`;
-                                                console.log("Effect state updated from updateeffect func:", effect);
+                                                // console.log("Effect state updated from updateeffect func:", effect);
 
                                                 updatedImages[item] = {
                                                     ...updatedImages[item],
@@ -411,7 +415,7 @@ const Frames = () => {
                                     updateAndSaveImagesInLocalStorage(gloableImages);
                                 }}
                                 updateText={(text) => {
-                                    console.log(selectedFrame);
+                                    // console.log(selectedFrame);
                                     const updatedImages = [...gloableImages];
                                     if (selectedFrame > -1) {
                                         divTextRef.current[selectedFrame].innerText = text;
@@ -448,7 +452,7 @@ const Frames = () => {
                         {numberOfFrames < 0 ? (
                             createButton()
                         ) : (
-                            console.log("Mapping images:", images),
+                            // console.log("Mapping images:", images),
                             images.map((item, index) => {
                                 return (
                                     <FrameContainer
@@ -493,7 +497,7 @@ const Frames = () => {
                                             const tempData = gloableImages.map((item, subIndex) => {
                                                 const tempData = { ...item };
                                                 if (subIndex === index) {
-                                                    console.log(tempData.sticker[sticketIndex]);
+                                                    // console.log(tempData.sticker[sticketIndex]);
                                                     const removedSticker = tempData.sticker[sticketIndex];
 
                                                     const tempStickers = tempData.sticker.filter(
@@ -613,8 +617,8 @@ export const BottomSelector = ({
 
     useEffect(() => {
         if (type === "crop" && selectedFrame > -1) {
-            console.log(selectedFrame)
-            console.log('globalImages', gloableImages)
+            // console.log(selectedFrame)
+            // console.log('globalImages', gloableImages)
             setRangeValue(gloableImages[selectedFrame].scaleValue);
         }
     }, [type, selectedFrame]);
@@ -634,7 +638,7 @@ export const BottomSelector = ({
     useEffect(() => {
         effectGloable = effect;
         updateEffect(effectGloable);
-        console.log("Effect changed in BottomSelector:", effect);
+        // console.log("Effect changed in BottomSelector:", effect);
     }, [effect]);
 
     useEffect(() => {
@@ -684,7 +688,7 @@ export const BottomSelector = ({
     const handleChangeSize = (size) => {
         setType("size");
         setSize1(size);
-        console.log(size1);
+        // console.log(size1);
     };
 
     if (type === "frame") {
@@ -756,10 +760,10 @@ export const BottomSelector = ({
 
                         setEffect("filter-willow");
                         updateEffect("filter-willow");
-                        console.log(gloableImages); // Log the gloableImages state
-                        console.log("Effect state updated:", effect); // Log the effect state
-                        console.log("EffectGloable state updated:", effectGloable); // Log the effectGloable state
-                        console.log(gloableImages); // Log the gloableImages state
+                        // console.log(gloableImages); // Log the gloableImages state
+                        // console.log("Effect state updated:", effect); // Log the effect state
+                        // console.log("EffectGloable state updated:", effectGloable); // Log the effectGloable state
+                        // console.log(gloableImages); // Log the gloableImages state
 
                     }}
                 >
@@ -776,7 +780,8 @@ export const BottomSelector = ({
                 </div>
                 <div
                     className={`toolContent ${effect === "filter-inkwell" ? "activeEffect" : ""}`}
-                    onClick={() => { setEffect("filter-inkwell"); console.log(gloableImages); console.log(effect) }}
+                    onClick={() => { setEffect("filter-inkwell"); 
+                         }}
                 >
                     <img
                         src={SamplePicIcon}
@@ -791,7 +796,7 @@ export const BottomSelector = ({
                 </div>
                 <div
                     className={`toolContent ${effect === "filter-aden" ? "activeEffect" : ""}`}
-                    onClick={() => { setEffect("filter-aden"); console.log(gloableImages); console.log(effect) }}
+                    onClick={() => { setEffect("filter-aden"); }}
                 >
                     <img
                         src={SamplePicIcon}
@@ -806,7 +811,7 @@ export const BottomSelector = ({
                 </div>
                 <div
                     className={`toolContent ${effect === "filter-dogpatch" ? "activeEffect" : ""}`}
-                    onClick={() => { setEffect("filter-dogpatch"); console.log(gloableImages); console.log(effect) }}
+                    onClick={() => { setEffect("filter-dogpatch"); }}
                 >
                     <img
                         src={SamplePicIcon}
@@ -821,7 +826,7 @@ export const BottomSelector = ({
                 </div>
                 <div
                     className={`toolContent ${effect === "filter-earlybird" ? "activeEffect" : ""}`}
-                    onClick={() => { setEffect("filter-earlybird"); console.log(gloableImages); console.log(effect) }}
+                    onClick={() => { setEffect("filter-earlybird"); }}
                 >
                     <img
                         src={SamplePicIcon}

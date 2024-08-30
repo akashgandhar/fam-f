@@ -33,13 +33,13 @@ import { FrameProvider, useFrameContext } from "./context/FrameContext";
 function App() {
   const dispatch = useDispatch();
   const showLogin = useSelector(state => state.globalReducer.showLogin);
-  const { isLoading, validFrameNumbers, routeIsValid } = useFrameContext();
-  const { numberOfFrames } = useParams();
+  const { isLoading, validFrameNumbers, routeIsValid, numberOfFrames } = useFrameContext();
   const location = useLocation();
 
   // Introduce a new state variable that depends on routeIsValid
   const [framesKey, setFramesKey] = useState(0);
 
+  const numberOfFrames1 = location.pathname.split('/').pop();
   useEffect(() => {
     setGloableDispatch(dispatch);
     dispatch(initPaymentAction(null));
@@ -52,7 +52,7 @@ function App() {
     dispatch(getGidtCardAction());
 
     // Log changes in `routeIsValid` (optional)
-    console.log('routeIsValid updated in app.js:', routeIsValid);
+    // console.log('routeIsValid updated in app.js:', routeIsValid);
 
     // Update framesKey whenever routeIsValid changes
     setFramesKey(prevKey => prevKey + 1);
@@ -61,6 +61,7 @@ function App() {
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
 
   return (
     <>
@@ -83,7 +84,7 @@ function App() {
       <Language />
       <ChatBot />
       <PromoCode />
-      <Checkout />
+      <Checkout numberOfFrames={numberOfFrames1}/>
       <Payment />
       <Loader />
       <Toaster />

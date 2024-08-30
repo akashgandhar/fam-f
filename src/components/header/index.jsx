@@ -16,7 +16,7 @@ const Header = ({ showCheckout = false, convertHtmlToImg }) => {
     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
     const [isChecked, setIsChecked] = useState(true);
     const handleSideBar = (elID) => {
-        console.log(document.getElementById(elID));
+        // console.log(document.getElementById(elID));
         if (document.getElementById(elID).checked) {
             document.getElementById('sidebarMenu').classList.add('showsidebar')
             document.body.classList.remove('sidebarHide');
