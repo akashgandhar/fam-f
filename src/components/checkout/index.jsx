@@ -189,42 +189,42 @@ const Checkout = ({ numberOfFrames }) => {
     const onSubmit = async () => {
         const reg = /^\S+@\S+\.\S+$/;
 
-        // if (!reg.test(emailValue)) {
-        //     toast.error("Please enter valid email address.");
-        //     return;
-        // } else if (!phoneValue || phoneValue.length < 10) {
-        //     toast.error("Please enter valid phone number.");
-        //     return;
-        // } else if (phoneValue.startsWith("9") === false && phoneValue.startsWith("8") === false && phoneValue.startsWith("7") === false && phoneValue.startsWith("6") === false) {
-        //     toast.error("Please enter valid phone number which starts with 9,8,7,6.");
-        //     return;
-        // } 
-        // // else if ((addressData?.phone != phoneValue) && !isVerified && phoneValue !== profile.number) {
-        // //     toast.error("Please verify your number.");
-        // //     return;
-        // // } 
-        // else if (!nameValue || nameValue.length < 2) {
-        //     toast.error("Please enter valid first name.");
-        //     return;
-        // } else if (!lastNameValue || lastNameValue.length < 2) {
-        //     toast.error("Please enter valid last name.");
-        //     return;
-        // } else if (!stateValue || stateValue.length < 2) {
-        //     toast.error("Please enter valid state.");
-        //     return;
-        // } else if (!cityValue || cityValue.length < 2) {
-        //     toast.error("Please enter valid city.");
-        //     return;
-        // } else if (!pincodeValue || pincodeValue.length < 6) {
-        //     toast.error("Please enter valid pincode.");
-        //     return;
-        // } else if (!addressValue || addressValue.length < 4) {
-        //     toast.error("Please enter valid address.");
-        //     return;
-        // } else if (!paymentType) {
-        //     toast.error("Please enter payment type.");
-        //     return;
-        // }
+        if (!reg.test(emailValue)) {
+            toast.error("Please enter valid email address.");
+            return;
+        } else if (!phoneValue || phoneValue.length < 10) {
+            toast.error("Please enter valid phone number.");
+            return;
+        } else if (phoneValue.startsWith("9") === false && phoneValue.startsWith("8") === false && phoneValue.startsWith("7") === false && phoneValue.startsWith("6") === false) {
+            toast.error("Please enter valid phone number which starts with 9,8,7,6.");
+            return;
+        } 
+        else if ((addressData?.phone != phoneValue) && !isVerified && phoneValue !== profile.number) {
+            toast.error("Please verify your number.");
+            return;
+        } 
+        else if (!nameValue || nameValue.length < 2) {
+            toast.error("Please enter valid first name.");
+            return;
+        } else if (!lastNameValue || lastNameValue.length < 2) {
+            toast.error("Please enter valid last name.");
+            return;
+        } else if (!stateValue || stateValue.length < 2) {
+            toast.error("Please enter valid state.");
+            return;
+        } else if (!cityValue || cityValue.length < 2) {
+            toast.error("Please enter valid city.");
+            return;
+        } else if (!pincodeValue || pincodeValue.length < 6) {
+            toast.error("Please enter valid pincode.");
+            return;
+        } else if (!addressValue || addressValue.length < 4) {
+            toast.error("Please enter valid address.");
+            return;
+        } else if (!paymentType) {
+            toast.error("Please enter payment type.");
+            return;
+        }
 
         const address = {
             "email": emailValue,
@@ -260,8 +260,8 @@ const Checkout = ({ numberOfFrames }) => {
         "discount": discount,
         "user": profile,
     };
-    console.log('paymentData', paymentData);
-    alert('Payment data: ' + JSON.stringify(paymentData, null, 2));
+    // console.log('paymentData', paymentData);
+    // alert('Payment data: ' + JSON.stringify(paymentData, null, 2));
 
         const header = {
             'Accept': 'application/json',

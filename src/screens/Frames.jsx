@@ -49,7 +49,6 @@ const Frames = () => {
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
     const { size, numberOfFrames } = useParams();
-    // console.log(numberOfFrames)
     const fileInputRef = useRef(null);
     const [size1, setSize1] = useState('1x1');
 
@@ -112,7 +111,6 @@ const Frames = () => {
             setImages(updatedImages);
             updateAndSaveImagesInLocalStorage(updatedImages);
             gloableImages = updatedImages;
-            // console.log("updatedImages", updatedImages);
             dispatch(loaderAction(false));
         } else {
             console.error("No frame selected. Please select a frame before adding an image.");
@@ -311,7 +309,7 @@ const Frames = () => {
                                         const translateX = (containerWidth - imageWidth * newScale) / 2;
                                         const translateY = (containerHeight - imageHeight * newScale) / 2;
                                 
-                                        const value = `translate(${translateX}px, ${translateY}px) scale(${newScale})`;
+                                        const value = `translate(${translateX}px, <span class="math-inline">\{translateY\}px\) scale\(</span>{newScale})`;
                                         div3Ref.current[selectedFrame].style.transform = value;
                                 
                                         updatedImages[selectedFrame] = {
@@ -324,7 +322,7 @@ const Frames = () => {
                                                 const [, translateX, translateY] = updatedImages[item].scale.match(/translate\((-?\d+)px,\s*(-?\d+)px\)/) || ['translate(0px, 0px)', 0, 0];
 
                                                 const newScale = 1 + rangeValue / 10;
-                                                const value = `translate(${translateX}px, ${translateY}px) scale(${newScale})`;
+                                                const value = `translate(${translateX}px, <span class="math-inline">\{translateY\}px\) scale\(</span>{newScale})`;
 
                                                 div3Ref.current[item].style.transform = value;
                                                 updatedImages[item] = {
@@ -1065,6 +1063,13 @@ export const FrameContainer = React.forwardRef((props, ref) => {
     const handleAddImageClick = () => {
         ref.current.click();
     };
+
+    useEffect(() => {
+        if (item.localUrl && div3Ref.current[index]) {
+            // Apply the scale transformation when the image loads
+            div3Ref.current[index].style.transform = item.scale;
+        }
+    }, [item.localUrl, item.scale, index]); 
 
     return (
         <div
