@@ -246,6 +246,7 @@ const Checkout = ({ numberOfFrames }) => {
 
     // Calculate total cost based on new UI logic
     const totalCost = subtotal - discount + (subtotal - discount) * (priceData?.gst / 100);
+    console.log("profile", profile);
 
     const paymentData = {
         "numberOfFrames": parseInt(numberOfFrames, 10),
@@ -256,7 +257,8 @@ const Checkout = ({ numberOfFrames }) => {
         "address": address,
         "paymentType": paymentType,
         "subtotal": subtotal,
-        "discount": discount
+        "discount": discount,
+        "user": profile,
     };
     console.log('paymentData', paymentData);
     alert('Payment data: ' + JSON.stringify(paymentData, null, 2));
@@ -266,7 +268,7 @@ const Checkout = ({ numberOfFrames }) => {
             'Content-Type': 'application/json',
         };
         try {
-            const result = await authAxios.post('user/order/book', paymentData, {
+            const result = await authAxios.post('http://localhost:8000/order/book', paymentData, {
                 headers: header
             });
 

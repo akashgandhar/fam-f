@@ -211,52 +211,67 @@ const Frames = () => {
 
     useEffect(() => {
         if (numberOfFrames > 0) {
-        const [frameWidth, frameHeight] = calculateFrameDimensions(size1);
-      
-          function calculateFrameDimensions(aspectRatioString) {
-            const [widthRatio, heightRatio] = aspectRatioString.split('x').map(Number);
-            const maxWidth = 400;
-            const maxHeight = 300;
-      
-            let frameWidth = maxWidth;
-            let frameHeight = (frameWidth / widthRatio) * heightRatio;
-      
-            if (frameHeight > maxHeight) {
-              frameHeight = maxHeight;
-              frameWidth = (frameHeight / heightRatio) * widthRatio;
+            function calculateFrameDimensions(aspectRatioString) {
+                const [widthRatio, heightRatio] = aspectRatioString.split('x').map(Number);
+                const maxWidth = 400;
+                const maxHeight = 300;
+          
+                let frameWidth = maxWidth;
+                let frameHeight = (frameWidth / widthRatio) * heightRatio;
+          
+                if (frameHeight > maxHeight) {
+                  frameHeight = maxHeight;
+                  frameWidth = (frameHeight / heightRatio) * widthRatio;
+                }
+          
+                return [frameWidth, frameHeight];
+              }
+            const [frameWidth, frameHeight] = calculateFrameDimensions(size1);
+
+            // Load image data from localStorage if available
+            const storedImages = localStorage.getItem('family_vibes_images_data');
+            let initialImages = [];
+            if (storedImages) {
+                const parsedImages = JSON.parse(storedImages);
+                if (parsedImages.length === numberOfFrames) { // Only use stored data if the number of frames matches
+                    initialImages = parsedImages.map(item => ({
+                        ...item,
+                        width: frameWidth, // Update frame dimensions
+                        height: frameHeight,
+                    }));
+                }
             }
-      
-            return [frameWidth, frameHeight];
-          }
-      
-          const initialImages = Array.from({ length: numberOfFrames }, (_, index) => {
-            const scaleToFit = Math.min(frameWidth / 400, frameHeight / 300); 
-      
-            return {
-              width: frameWidth,
-              height: frameHeight,
-              frame: 0,
-              effect: "",
-              text: "",
-              mat: 0,
-              sticker: [],
-              rangeValue: "1",
-              div1Class: "frame-one",
-              div2Class: "sub-frame-inner",
-              div3Class: "frame-image-large",
-              scale: `translate(0px, 0px) rotate(0deg) scale(${scaleToFit})`,
-              textPosition: { x: 0, y: 0 },
-              isShowBoundry: true,
-              scaleValue: scaleToFit.toString(),
-              localUrl: null,
-            };
-          });
-      
-          setImages(initialImages);
-          gloableImages = initialImages;
-          updateAndSaveImagesInLocalStorage(initialImages);
+
+            if (initialImages.length === 0) { // If no suitable stored data, create new initial images
+                initialImages = Array.from({ length: numberOfFrames }, (_, index) => {
+                    const scaleToFit = Math.min(frameWidth / 400, frameHeight / 300);
+
+                    return {
+                        width: frameWidth,
+                        height: frameHeight,
+                        frame: 0,
+                        effect: "",
+                        text: "",
+                        mat: 0,
+                        sticker: [],
+                        rangeValue: "1",
+                        div1Class: "frame-one",
+                        div2Class: "sub-frame-inner",
+                        div3Class: "frame-image-large",
+                        scale: `translate(0px, 0px) rotate(0deg) scale(${scaleToFit})`,
+                        textPosition: { x: 0, y: 0 },
+                        isShowBoundry: true,
+                        scaleValue: scaleToFit.toString(),
+                        localUrl: null,
+                    };
+                });
+            }
+
+            setImages(initialImages);
+            gloableImages = initialImages;
+            updateAndSaveImagesInLocalStorage(initialImages);
         }
-      }, [numberOfFrames, size1]);
+    }, [numberOfFrames, size1]); 
 
     return (
         <div className="UserAdmin">
@@ -1112,6 +1127,7 @@ export const FrameContainer = React.forwardRef((props, ref) => {
                                             width: "100%",
                                             height: "100%",
                                             objectFit: "contain",
+                                            transform: item.scale,
                                         }}
                                     />
                                 ) : (
@@ -1142,6 +1158,7 @@ export const FrameContainer = React.forwardRef((props, ref) => {
                                     deleteText={deleteText}
                                     setCross={setCross}
                                     cross={cross}
+                                    position={item.textPosition}
                                 />
                             </div>
                         )}
