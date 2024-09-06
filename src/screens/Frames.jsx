@@ -320,6 +320,7 @@ const Frames = () => {
                     <div id='mainFrameScrollContainer' className="h-100">
                         {images?.length > 0 && (
                             <BottomSelector
+                                setSize1={setSize1}
                                 setType={setType}
                                 onPlusClick={() => {
                                     ref.current.click()
@@ -841,24 +842,53 @@ export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, upd
         )
     }
     else if (type === 'crop') {
-        return (
-            <div className="ToolBox Crop">
-                <div className="toolContent">
-                    <input type="range" min="1" max="100" className="slider" id="myRange"
-                        onChange={e => { setRangeValue(e.target.value) }}
-                        value={rangeValue}
-                    ></input>
-                </div>
-                <div onClick={() => {
-                    setText(value)
-                    setType('')
-                    setCropping(false)
-                }} className="goback_cta">
-                    Go Back
-                </div>
+    return (
+        <div className="ToolBox Crop">
+            <div className="toolContent">
+                <input 
+                    type="range" 
+                    min="1" 
+                    max="100" 
+                    className="slider" 
+                    id="myRange"
+                    onChange={e => { setRangeValue(e.target.value) }}
+                    value={rangeValue}
+                />
             </div>
-        )
-    }
+
+            {selectedFrame > -1 && ( // Conditionally render size options
+                <div className="ToolBox Size">
+                    {sizes.map(size => (
+                        <div
+                            key={size._id}
+                            className={`toolContent ${selectedSize === size.size ? 'activeEffect' : ''}`}
+                            onClick={() => {
+                                setSize1(size.size);
+                                // handleSizeChange(size.size, selectedFrame);
+                            }}
+                        >
+                            <span>{size.size}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <div onClick={() => {
+                setText(value)
+                setType('')
+                setCropping(false)
+            }} className="goback_cta">
+                Go Back
+            </div>
+            <div onClick={() => {
+                setCropping(false)
+                setType('size')
+            }} className="change-size">
+                change size
+            </div>
+        </div>
+    )
+}
 
     return (
         <div className="ToolBox">
