@@ -7,7 +7,6 @@ import { fetchGiftCards } from '../../redux/actions/giftCards';
 import axios from 'axios';
 import { baseUrl } from '../../theme/appConstants';
 
-
 const GiftCardContainer = () => {
     const dispatch = useDispatch();
     const profile = useSelector(state => state.userReducer.user);
@@ -15,10 +14,11 @@ const GiftCardContainer = () => {
     const [email, setEmail] = useState('');
     const [mobileNumber, setMobileNumber] = useState('');
     const [giftCards, setGiftCards] = useState([]);
+    const [frameSizes, setFrameSizes] = useState([]);
+    const [selectedSize, setSelectedSize] = useState('');
 
     useEffect(() => {
         const fetchGiftCards = async () => {
-            console.log(baseUrl)
             try {
                 const response = await axios.get('http://localhost:8000/getAllGiftCards');
                 setGiftCards(response.data);
@@ -28,7 +28,18 @@ const GiftCardContainer = () => {
             }
         };
 
+        const fetchFrameSizes = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/getAllFrames');
+                setFrameSizes(response.data);
+            } catch (error) {
+                toast.error("Failed to fetch frame sizes.");
+                console.error("Fetch frame sizes error:", error.message);
+            }
+        };
+
         fetchGiftCards();
+        fetchFrameSizes();
     }, []);
 
     const onBuyClick = () => {
@@ -59,7 +70,7 @@ const GiftCardContainer = () => {
             'Content-Type': 'application/json',
         };
         try {
-            const result = await authAxios.post('user/promo/orderId', initPayment, { headers: header });
+            const result = await authAxios.post('http://localhost:8000/promo/orderId', initPayment, { headers: header });
             const { data } = result;
             if (data.success) {
                 const { message } = data;
@@ -74,7 +85,7 @@ const GiftCardContainer = () => {
             }
         } catch (error) {
             alert("Server error. Are you online? " + error?.message);
-            console.log(error)
+            console.log('error', error);
             dispatch(loaderAction(false));
         }
     }
@@ -110,6 +121,22 @@ const GiftCardContainer = () => {
                                     <label htmlFor="mobileNumber">Recipient's Mobile Number: </label>
                                     <input type="tel" className="form-control rounded-0" id="mobileNumber"
                                         placeholder="Mobile Number" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value)} />
+                                </div>
+                                <div className="form-group col-lg-9 px-0 wow fadeInDown">
+                                    <label htmlFor="frameSize">Select Frame Size:</label>
+                                    <select
+                                        className="form-control rounded-0"
+                                        id="frameSize"
+                                        value={selectedSize}
+                                        onChange={(e) => setSelectedSize(e.target.value)}
+                                    >
+                                        <option value="">Select a size</option> 
+                                        {frameSizes.map((frame) => (
+                                            <option key={frame._id} value={frame.size}>
+                                                {frame.size}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="form-group mb-1  wow fadeInDown">
                                     <label>Select number of tiles
