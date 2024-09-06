@@ -40,10 +40,8 @@ const HomeUI = () => {
     }, []);
 
     const handleAddToCart = (numberOfFrames) => {
-        console.log('add to cart clicked for', numberOfFrames, 'frames');
-        console.log(`going to /frames/${numberOfFrames}`);
-        navigate(`/frames/${numberOfFrames}`); 
-      };
+        navigate('/frames');
+    };
     const responsive = {
         superLargeDesktop: {
             // the naming can be any, depends on you.
@@ -267,21 +265,24 @@ const HomeUI = () => {
                 </div>
 
                 <Carousel responsive={responsive} infinite={true} autoPlay={true} autoPlaySpeed={3000}>
-                    {
-                        frameNumbers.map((frameNumber) => (
-                            <div key={frameNumber._id} className="col mb-4 mb-lg-0 wow fadeInUp">
-                                <div className="position-relative">
-                                    <div className="dec1">
-                                        <img src={frameNumber.imageUrl} alt="Decor Image" className="img-fluid" />
-                                    </div>
+                    {frameNumbers.map((frameNumber) => (
+                        <div key={frameNumber._id} className="col mb-4 mb-lg-0 wow fadeInUp">
+                            <div className="position-relative">
+                                <div className="dec1">
+                                    <img src={frameNumber.imageUrl} alt="Decor Image" className="img-fluid" />
                                 </div>
-                                <h4>{frameNumber.numberOfFrames} Frames</h4>
-                                <button onClick={() => handleAddToCart(frameNumber.numberOfFrames)} className="btn btn-orange rounded-pill mt-3">
-                                    Add to Cart
-                                </button>
                             </div>
-                        ))
-                    }
+                            <h4>{frameNumber.numberOfFrames} Frames</h4>
+                            {/* Display the description below the number of frames */}
+                            <p className="text-muted mt-2">
+                                {frameNumber.description.split(' ').slice(0, 20).join(' ')}
+                                {frameNumber.description.split(' ').length > 20 && '...'}
+                            </p>
+                            <button onClick={() => handleAddToCart(frameNumber.numberOfFrames)} className="btn btn-orange rounded-pill mt-3">
+                                Add to Cart
+                            </button>
+                        </div>
+                    ))}
                 </Carousel>
             </section>
 
