@@ -70,9 +70,12 @@ const GiftCardContainer = () => {
                 }
             } else {
                 alert("Payment initiate error.");
+                dispatch(loaderAction(false));
             }
         } catch (error) {
             alert("Server error. Are you online? " + error?.message);
+            console.log(error)
+            dispatch(loaderAction(false));
         }
     }
 

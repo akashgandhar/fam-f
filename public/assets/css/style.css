@@ -1658,14 +1658,12 @@
 .frame-two,
 .frame-three {
     height: 100%;
-    /* height: 325px;
-    width: 325px; */
     margin-bottom: 16px;
     transition: var(--transition);
 }
 
 .frame-one {
-    border: 12px solid black;
+    /* border: 12px solid black; */
     box-shadow: 1px 1px 0px #6C6B6B,
         2px 2px 0px #6C6B6B,
         3px 3px 0px #6C6B6B,
@@ -1707,23 +1705,18 @@
 
 .sub-frame {
     border: 1px solid silver;
-    /* height: 301px;
-    width: 301px; */
     box-shadow: 0px 0px 5px black inset;
     height: 100%;
 }
 
 .sub-frame-wood {
     border: 1px solid #A47449 !important;
-    /* height: 301px;
-    width: 301px; */
     box-shadow: 0px 0px 5px black inset;
     height: 100%;
 }
 
 .sub-frame-inner {
     height: 100%;
-    /* height: 301px; */
     justify-content: center;
     align-items: center;
     display: flex;
@@ -4472,10 +4465,10 @@ footer h4 {
     color: #e00;
 }
 
-.UserAdmin .ImageContainer {
+/* .UserAdmin .ImageContainer {
     height: 100%;
     width: 100%;
-}
+} */
 
 .UserAdmin .frameMessage {
     

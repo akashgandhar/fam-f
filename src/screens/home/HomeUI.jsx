@@ -463,37 +463,37 @@ const HomeUI = () => {
                 <Footer />
             </div>
             {
-                popupData && Object.keys(popupData).length > 0 &&
-                <div className={offerPop ? 'offerPop' : 'd-none'}>
-                    <div className="container h-100">
-                        <div className="row h-100 justify-content-center align-items-center">
-                            <div className="col-sm-10 col-lg-6 offerPopUp">
-                                <div className="mt-3 text-right">
-                                    <span className='closebtn' style={{ cursor: 'pointer' }} onClick={offerPopHandle}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ height: 30 }}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </span>
-                                </div>
-                                <div className="row h-100 align-items-center justify-content-center pb-5 pt-4  mx-0">
-                                    <div className="col-12 text-center">
-                                        <img src={`${imgUrl}/offer/${popupData?.image1}`} alt="Decort Image" className="border-light mr-2" />
-                                        <img src={`${imgUrl}/offer/${popupData?.image2}`} alt="Decort Image" className="brown-border" />
-                                        {/* <img src={popupImage2} alt="Decort Image" className="brown-border" /> */}
-                                    </div>
-                                    <div className="col-12 text-center">
-                                        <div className="my-4">
-                                            <h4 className='text-white m-0'>{popupData?.line1}</h4>
-                                            <h2 className='text-white m-0'>{popupData?.line2}</h2>
-                                            <h3 className='text-white'>{popupData?.line3}</h3>
-                                        </div>
-                                        <div id="copyCode" onClick={() => clickToCopy(popupData?.coupon)}> {popupData?.coupon} <span>COPY</span> </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                // popupData && Object.keys(popupData).length > 0 &&
+                // <div className={offerPop ? 'offerPop' : 'd-none'}>
+                //     <div className="container h-100">
+                //         <div className="row h-100 justify-content-center align-items-center">
+                //             <div className="col-sm-10 col-lg-6 offerPopUp">
+                //                 <div className="mt-3 text-right">
+                //                     <span className='closebtn' style={{ cursor: 'pointer' }} onClick={offerPopHandle}>
+                //                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ height: 30 }}>
+                //                             <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                //                         </svg>
+                //                     </span>
+                //                 </div>
+                //                 <div className="row h-100 align-items-center justify-content-center pb-5 pt-4  mx-0">
+                //                     <div className="col-12 text-center">
+                //                         <img src={`${imgUrl}/offer/${popupData?.image1}`} alt="Decort Image" className="border-light mr-2" />
+                //                         <img src={`${imgUrl}/offer/${popupData?.image2}`} alt="Decort Image" className="brown-border" />
+                //                         {/* <img src={popupImage2} alt="Decort Image" className="brown-border" /> */}
+                //                     </div>
+                //                     <div className="col-12 text-center">
+                //                         <div className="my-4">
+                //                             <h4 className='text-white m-0'>{popupData?.line1}</h4>
+                //                             <h2 className='text-white m-0'>{popupData?.line2}</h2>
+                //                             <h3 className='text-white'>{popupData?.line3}</h3>
+                //                         </div>
+                //                         <div id="copyCode" onClick={() => clickToCopy(popupData?.coupon)}> {popupData?.coupon} <span>COPY</span> </div>
+                //                     </div>
+                //                 </div>
+                //             </div>
+                //         </div>
+                //     </div>
+                // </div>
             }
 
 

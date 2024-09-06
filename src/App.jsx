@@ -33,7 +33,7 @@ import { FrameProvider, useFrameContext } from "./context/FrameContext";
 function App() {
   const dispatch = useDispatch();
   const showLogin = useSelector(state => state.globalReducer.showLogin);
-  const { isLoading, validFrameNumbers, routeIsValid, numberOfFrames } = useFrameContext();
+  // const { isLoading, validFrameNumbers, routeIsValid, numberOfFrames } = useFrameContext();
   const location = useLocation();
 
   // Introduce a new state variable that depends on routeIsValid
@@ -56,11 +56,12 @@ function App() {
 
     // Update framesKey whenever routeIsValid changes
     setFramesKey(prevKey => prevKey + 1);
-  }, [isLoading, numberOfFrames, validFrameNumbers, routeIsValid]);
+  // }, [isLoading, numberOfFrames, validFrameNumbers, routeIsValid]);
+  }, []);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  // if (isLoading) {
+  //   return <div>Loading...</div>;
+  // }
 
 
   return (
@@ -69,7 +70,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
-        <Route path="/frames/:numberOfFrames" element={routeIsValid ? <Frames key={framesKey} /> : <Notfound/>} />
+        {/* <Route path="/frames/:numberOfFrames" element={routeIsValid ? <Frames key={framesKey} /> : <Notfound/>} /> */}
+        <Route path="/frames" element={<Frames/>} />
         <Route path="/refund" element={<RefundPolicy />} />
         <Route path="/return" element={<ReturnPolicy />} />
         <Route path="/shipping" element={<ShippingPolicy />} />

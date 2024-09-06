@@ -72,7 +72,7 @@ const DragableImage = ({ item, ref2, warnRef, index, onTransform }) => {
 
   const checkImageQuality = (image) => {
     const minPixelCount = 2000000; // Adjust this value for the desired minimum pixel count
-    console.log(image.src);
+    // console.log(image.src);
     if (image.src.endsWith('.svg')) {
         return false; // SVGs are assumed to be good quality
       }
@@ -100,7 +100,7 @@ const DragableImage = ({ item, ref2, warnRef, index, onTransform }) => {
         }}
         onLoad={e => {
           if (checkImageQuality(e.currentTarget)) {
-            console.log(checkImageQuality(e.currentTarget));
+            // console.log(checkImageQuality(e.currentTarget));
             warnRef.current.innerText = 'Warning! Low Image Quality';
           } else {
             warnRef.current.innerText = ''; 
