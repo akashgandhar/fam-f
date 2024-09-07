@@ -26,7 +26,6 @@ import { baseUrl } from "../theme/appConstants";
 import fileUpload from "../components/fileUploader/fileUpload";
 import { getImage } from "../components/fileUploader/getImage";
 import { handleUnlinkFile } from "../components/fileUploader/deleteImg";
-import { SizeSelector } from "./Components/sizeSelector";
 
 var globalImages = []
 const Frames = () => {
@@ -320,6 +319,9 @@ const Frames = () => {
                     <div id='mainFrameScrollContainer' className="h-100">
                         {images?.length > 0 && (
                             <BottomSelector
+                                setImages={setImages}
+                                updateAndSaveImagesInLocalStorage={updateAndSaveImagesInLocalStorage}
+                                div1Ref={div1Ref}
                                 setSize1={setSize1}
                                 setType={setType}
                                 onPlusClick={() => {
@@ -352,40 +354,42 @@ const Frames = () => {
                                     updateAndSaveImagesInLocalStorage(globalImages)
                                 }}
                                 updateRange={(rangeValue) => {
-                                    if (imgRef.current && imgRef.current?.length > 0) {
+                                    if (imgRef.current && imgRef.current.length > 0) {
                                         if (selectedFrame > -1) {
                                             const splitt = globalImages[selectedFrame].scale.split(' ')
                                             let tempTrans = splitt[0]
                                             if (rangeValue == '1' || rangeValue == 1) {
                                                 tempTrans = 'translate(0px,0px)'
                                             }
-                                            const value = `<span class="math-inline">\{tempTrans\} rotate\(0deg\) scale\(</span>{1 + (rangeValue / 10)})`
-
-                                            imgRef.current[selectedFrame].style.transform = value
+                                            const value = `${tempTrans} rotate(0deg) scale(${1 + (rangeValue / 10)})`
+                                            imgRef.current[selectedFrame].style.setProperty("transform", value);
 
                                             const tempObj = { ...globalImages[selectedFrame] }
                                             tempObj.scale = value;
                                             tempObj.scaleValue = rangeValue;
+
                                             globalImages[selectedFrame] = tempObj;
-                                        } else {
+                                        }
+                                        else {
                                             for (let item in imgRef.current) {
                                                 const splitt = globalImages[item].scale.split(' ')
                                                 let tempTrans = splitt[0]
                                                 if (rangeValue == '1' || rangeValue == 1) {
                                                     tempTrans = 'translate(0px,0px)'
                                                 }
-                                                const value = `<span class="math-inline">\{tempTrans\} rotate\(0deg\) scale\(</span>{1 + (rangeValue / 10)})`
+                                                const value = `${tempTrans} rotate(0deg) scale(${1 + (rangeValue / 10)})`
+                                                imgRef.current[item].style.setProperty("transform", value);
 
-                                                imgRef.current[item].style.transform = value;
+
                                                 const tempObj = { ...globalImages[item] }
                                                 tempObj.scale = value;
                                                 tempObj.scaleValue = rangeValue;
+
                                                 globalImages[item] = tempObj;
                                             }
                                         }
-                                        updateAndSaveImagesInLocalStorage(globalImages)
-                                    }
 
+                                    }
                                 }}
                                 updateMat={(mat) => {
                                     if (imgRef.current && imgRef.current?.length > 0) {
@@ -606,7 +610,7 @@ var frameClassGloable
 var subFrameGloable
 var rangeValueGloable = '1'
 var effectGloable, frameSizeGloable
-export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, updateDiv, selectedFrame, updateText, updateMat, value, setValue, updateRange, setSize1 }) => {
+export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, updateDiv, selectedFrame, updateText, updateMat, value, setValue, updateRange, setSize1, setImages, updateAndSaveImagesInLocalStorage, div1Ref }) => {
     const { width } = useWindowDimensions();
     const [type, setType] = useState('')
     const [frame, setFrame] = useState(-1)
@@ -619,6 +623,10 @@ export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, upd
     const imageSize = 22
     const [sizes, setSizes] = useState([]);
     const [selectedSize, setSelectedSize] = useState(null);
+    const [colors, setColors] = useState([]);
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [frameStyle, setFrameStyle] = useState({});
+    const [subFrameStyle, setSubFrameStyle] = useState({});
 
     useEffect(() => {
         const fetchSizes = async () => {
@@ -640,6 +648,29 @@ export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, upd
 
         fetchSizes();
     }, []);
+    useEffect(() => {
+        const fetchColors = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/getAllColors');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setColors(data);
+
+                if (selectedFrame > -1 && globalImages[selectedFrame].color) {
+                    setSelectedColor(globalImages[selectedFrame].color);
+                }
+            } catch (error) {
+                console.error('Error fetching colors:', error);
+            }
+        };
+
+        fetchColors();
+        console.log('colors', colors);
+    }, []);
+
+
 
 
     useEffect(() => {
@@ -706,27 +737,83 @@ export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, upd
     //     onSizeChange(size);
     // };
 
-    if (type === 'frame') {
-        return (
-            <div className="ToolBox Frame">
-                <div className={`toolContent ${frame === 0 ? 'activeEffect' : ''}`} onClick={() => setFrame(0)}>
-                    <img src={BlackFrameIcon} width={60} height={60} alt="FrameIcon" />
-                    <span>Black</span>
-                </div>
-                <div className={`toolContent ${frame === 1 ? 'activeEffect' : ''}`} onClick={() => setFrame(1)}>
-                    <img src={WhiteFrameIcon} width={60} height={60} alt="EffectIcon" />
-                    <span>White</span>
-                </div>
-                <div className={`toolContent ${frame === 2 ? 'activeEffect' : ''}`} onClick={() => setFrame(2)}>
-                    <img src={FrameLessIcon} width={60} height={60} alt="MatIcon" />
-                    <span>Wood</span>
-                </div>
-                <div onClick={() => setType('')} className="goback_cta">
-                    Go Back
-                </div>
-            </div>
-        )
+    // if (type === 'frame') {
+    //     return (
+    //         <div className="ToolBox Frame">
+    //             <div className={`toolContent ${frame === 0 ? 'activeEffect' : ''}`} onClick={() => setFrame(0)}>
+    //                 <img src={BlackFrameIcon} width={60} height={60} alt="FrameIcon" />
+    //                 <span>Black</span>
+    //             </div>
+    //             <div className={`toolContent ${frame === 1 ? 'activeEffect' : ''}`} onClick={() => setFrame(1)}>
+    //                 <img src={WhiteFrameIcon} width={60} height={60} alt="EffectIcon" />
+    //                 <span>White</span>
+    //             </div>
+    //             <div className={`toolContent ${frame === 2 ? 'activeEffect' : ''}`} onClick={() => setFrame(2)}>
+    //                 <img src={FrameLessIcon} width={60} height={60} alt="MatIcon" />
+    //                 <span>Wood</span>
+    //             </div>
+    //             <div onClick={() => setType('')} className="goback_cta">
+    //                 Go Back
+    //             </div>
+    //         </div>
+    //     )
+    // }
+
+     const handleColorClick = (hexColor) => {
+    if (selectedFrame > -1) {
+      const updatedImages = [...globalImages];
+      updatedImages[selectedFrame].div1Class = `frame-one ${hexColor}`; // Apply the selected color directly
+      setImages(updatedImages);
+      globalImages = updatedImages;
+      updateAndSaveImagesInLocalStorage(globalImages);
+
+      const frameElement = div1Ref.current[selectedFrame];
+      if (frameElement) {
+        frameElement.style.setProperty('--frame-color', hexColor);
+        frameElement.style.setProperty('--shadow-color', hexColor); // Set shadow color to match frame color
+      }
     }
+  };
+
+      if (type === 'frame') {
+        return (
+          <div className="ToolBox Frame">
+            <div className={`toolContent ${frame === 0 ? 'activeEffect' : ''}`} onClick={() => setFrame(0)}>
+              <img src={BlackFrameIcon} width={60} height={60} alt="FrameIcon" />
+              <span>Black</span>
+              {/* Display color options for the black frame */}
+              {colors.map(color => (
+                <div
+                  key={color._id}
+                  className={`colorOption ${globalImages[selectedFrame]?.div1Class?.includes(color.hex) ? 'activeColor' : ''}`}
+                  onClick={() => handleColorClick(color.hex, 0)} // Pass 0 for black frame
+                  style={{ backgroundColor: color.hex }}
+                ></div>
+              ))}
+            </div>
+            <div className={`toolContent ${frame === 1 ? 'activeEffect' : ''}`} onClick={() => setFrame(1)}>
+              <img src={WhiteFrameIcon} width={60} height={60} alt="EffectIcon" />
+              <span>White</span>
+              {/* Display color options for the white frame */}
+              {colors.map(color => (
+                <div
+                  key={color._id}
+                  className={`colorOption ${globalImages[selectedFrame]?.div1Class?.includes(color.hex) ? 'activeColor' : ''}`}
+                  onClick={() => handleColorClick(color.hex, 1)} // Pass 1 for white frame
+                  style={{ backgroundColor: color.hex }}
+                ></div>
+              ))}
+            </div>
+            <div className={`toolContent ${frame === 2 ? 'activeEffect' : ''}`} onClick={() => setFrame(2)}>
+              <img src={FrameLessIcon} width={60} height={60} alt="MatIcon" />
+              <span>Wood</span>
+            </div>
+            <div onClick={() => setType('')} className="goback_cta">
+              Go Back
+            </div>
+          </div>
+        );
+      }
     else if (type === 'effect') {
         return (
             <div className="ToolBox Effect">
@@ -842,53 +929,53 @@ export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, upd
         )
     }
     else if (type === 'crop') {
-    return (
-        <div className="ToolBox Crop">
-            <div className="toolContent">
-                <input 
-                    type="range" 
-                    min="1" 
-                    max="100" 
-                    className="slider" 
-                    id="myRange"
-                    onChange={e => { setRangeValue(e.target.value) }}
-                    value={rangeValue}
-                />
-            </div>
-
-            {selectedFrame > -1 && ( // Conditionally render size options
-                <div className="ToolBox Size">
-                    {sizes.map(size => (
-                        <div
-                            key={size._id}
-                            className={`toolContent ${selectedSize === size.size ? 'activeEffect' : ''}`}
-                            onClick={() => {
-                                setSize1(size.size);
-                                // handleSizeChange(size.size, selectedFrame);
-                            }}
-                        >
-                            <span>{size.size}</span>
-                        </div>
-                    ))}
+        return (
+            <div className="ToolBox Crop">
+                <div className="toolContent">
+                    <input
+                        type="range"
+                        min="1"
+                        max="100"
+                        className="slider"
+                        id="myRange"
+                        onChange={e => { setRangeValue(e.target.value) }}
+                        value={rangeValue}
+                    />
                 </div>
-            )}
 
-            <div onClick={() => {
-                setText(value)
-                setType('')
-                setCropping(false)
-            }} className="goback_cta">
-                Go Back
+                {selectedFrame > -1 && ( // Conditionally render size options
+                    <div className="ToolBox Size">
+                        {sizes.map(size => (
+                            <div
+                                key={size._id}
+                                className={`toolContent ${selectedSize === size.size ? 'activeEffect' : ''}`}
+                                onClick={() => {
+                                    setSize1(size.size);
+                                    // handleSizeChange(size.size, selectedFrame);
+                                }}
+                            >
+                                <span>{size.size}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <div onClick={() => {
+                    setText(value)
+                    setType('')
+                    setCropping(false)
+                }} className="goback_cta">
+                    Go Back
+                </div>
+                <div onClick={() => {
+                    setCropping(false)
+                    setType('size')
+                }} className="change-size">
+                    change size
+                </div>
             </div>
-            <div onClick={() => {
-                setCropping(false)
-                setType('size')
-            }} className="change-size">
-                change size
-            </div>
-        </div>
-    )
-}
+        )
+    }
 
     return (
         <div className="ToolBox">
