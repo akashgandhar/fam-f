@@ -254,6 +254,7 @@ const Frames = () => {
         globalImages = tempData
         setFramesAll(tempFinalData);
         setImages(globalImages);
+        console.log(images);
         dispatch(loaderAction(false));
         dispatch(showCheckOutAction(true));
         const tempData2 = [...globalImages];

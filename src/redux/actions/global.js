@@ -12,6 +12,12 @@ export const showCheckOutAction = (data) => {
         payload: data
     }
 }
+export const showProductsCheckoutAction = (data) => {
+    return {
+        type: redux.SHOW_PRODUCTS_CHECKOUT  ,
+        payload: data
+    }
+}
 export const showLoginAction = (data) => {
     return {
         type: redux.SHOW_LOGIN,

@@ -8,7 +8,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import NavContainer from "../../screens/home/NavContainer";
 import { useEffect, useState } from "react";
 
-const Header = ({ showCheckout = false, convertHtmlToImg }) => {
+const Header = ({ showCheckout = false, convertHtmlToImg, showProductCheckout=false }) => {
     document.body.classList.add('bg-footer');
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -89,6 +89,7 @@ const Header = ({ showCheckout = false, convertHtmlToImg }) => {
                         <li className="profile p-2">{profile ? (`Hi, ${profile.name}`) : 'Hi'}</li>
                         <li><NavLink to={'/my-account'} id ="acc" >My Account</NavLink></li>
                         <li><NavLink to={'/frames'} id="fr" >Frames</NavLink></li>
+                        <li><NavLink to={'/products'} id="fr" >Products</NavLink></li>
                         <li><NavLink to={'/orders'} id ="or" >My Orders</NavLink></li>
                         <li><NavLink to={'/gifts'} id ="gf" >My Gifts</NavLink></li>
                         <li><NavLink to={'/privacyPolicy'} >Privacy Policy</NavLink></li>

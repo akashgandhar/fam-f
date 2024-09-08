@@ -29,6 +29,9 @@ import ShippingPolicy from "./screens/Shipping";
 import Gifts from "./screens/Gifts";
 import Framesize from "./screens/Framesize";
 import { FrameProvider, useFrameContext } from "./context/FrameContext";
+import ProductsPage from "./screens/home/Products";
+import CheckoutForProducts from "./screens/Components/CheckoutForProducts";
+import { ProductProvider } from "./context/ProductContext";
 
 function App() {
   const dispatch = useDispatch();
@@ -65,7 +68,7 @@ function App() {
 
 
   return (
-    <>
+    <ProductProvider>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/terms" element={<Terms />} />
@@ -80,7 +83,10 @@ function App() {
         <Route path="/my-account" element={<MyAccount />} />
         <Route path="/thank-you" element={<Thankyou />} />
         <Route path="/contact-us" element={<Contactus />} />
+        <Route path='/products' element={<ProductsPage />} />
+        <Route path="/checkout" element={<CheckoutForProducts />} />
         <Route path="/*" element={<Notfound />} />
+        
       </Routes>
       <FAQ />
       <Language />
@@ -91,7 +97,7 @@ function App() {
       <Loader />
       <Toaster />
       {showLogin && <Login onCancleClick={() => dispatch(showLoginAction(false))} />}
-    </>
+    </ProductProvider>
   );
 }
 
