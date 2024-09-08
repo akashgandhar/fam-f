@@ -49,7 +49,7 @@ const Frames = () => {
     const [value, setValue] = useState('');
     const [type, setType] = useState('');
     const [size1, setSize1] = useState("16x9");
-    const [numberOfFrames, setNumberOfFrames] = useState(1);
+    const [numberOfFrames, setNumberOfFrames] = useState(0);
     const [sizes, setSizes] = useState([]);
 
 
