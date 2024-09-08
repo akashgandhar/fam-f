@@ -13,6 +13,7 @@ import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import axios from 'axios';
 import { Link, Navigate } from 'react-router-dom';
+import { shuffle } from 'lodash';
 
 
 
@@ -184,6 +185,11 @@ const HomeUI = () => {
         setpopupImage2(image2);
 
     };
+    //handle buy now
+    const handleBuyNow = (item) => {
+        navigate('/product/' + item._id);
+    }
+
 
     return (
         <>
@@ -264,25 +270,52 @@ const HomeUI = () => {
                     </div>
                 </div>
 
+                <div className="col  wow fadeInUp">
+                        <div className="d-flex align-items-center justify-content-end my-4">
+                            <NavLink to="/products" className="btn btn-orange rounded-pill">
+                                View All Products
+                            </NavLink>
+                        </div>
+                    </div>
+
                 <Carousel responsive={responsive} infinite={true} autoPlay={true} autoPlaySpeed={3000}>
-                    {frameNumbers.map((frameNumber) => (
-                        <div key={frameNumber._id} className="col mb-4 mb-lg-0 wow fadeInUp">
-                            <div className="position-relative">
-                                <div className="dec1">
-                                    <img src={frameNumber.imageUrl} alt="Decor Image" className="img-fluid" />
+                    {shuffle(frameNumbers).slice(0, 7).map((item) => (
+                        <div key={item._id} className="col mb-4 mb-lg-0 wow fadeInUp">
+                            <div className="position-relative card-container">
+                                <div className="dec1 d-flex align-items-center justify-content-center">
+                                    <img
+                                        src={item.imageUrl}
+                                        alt={item.type === "frame" ? "Frame Image" : "Product Image"}
+                                        className="img-fluid"
+                                    />
+                                </div>
+                                <div className="card-content">
+                                    <h4>
+                                        {item.type === "frame"
+                                            ? `${item.numberOfFrames} Frames`
+                                            : item.name}
+                                    </h4>
+                                    <p className="text-muted mt-2">
+                                        {item.description.split(" ").slice(0, 20).join(" ")}
+                                        {item.description.split(" ").length > 20 && "..."}
+                                    </p>
+                                    <div className="d-flex align-items-start mt-3">
+                                        <button
+                                            onClick={() =>
+                                                item.type === "frame"
+                                                    ? handleAddToCart(item.numberOfFrames)
+                                                    : handleBuyNow(item)
+                                            }
+                                            className="btn btn-orange rounded-pill"
+                                        >
+                                            {item.type === "frame" ? "Add to Cart" : "Buy Now"}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <h4>{frameNumber.numberOfFrames} Frames</h4>
-                            {/* Display the description below the number of frames */}
-                            <p className="text-muted mt-2">
-                                {frameNumber.description.split(' ').slice(0, 20).join(' ')}
-                                {frameNumber.description.split(' ').length > 20 && '...'}
-                            </p>
-                            <button onClick={() => handleAddToCart(frameNumber.numberOfFrames)} className="btn btn-orange rounded-pill mt-3">
-                                Add to Cart
-                            </button>
                         </div>
                     ))}
+                    
                 </Carousel>
             </section>
 
