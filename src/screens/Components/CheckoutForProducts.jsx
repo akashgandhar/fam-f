@@ -144,13 +144,20 @@ export default function CheckoutForProducts() {
 
       let { data } = response;
       if (data.success) {
+        console.log('Payment initiated successfully:', data);
         if (data?.data?.isFree) {
+            console.log('Free product');
           window.location.href = `https://familyvibes.in/thank-you?type=order&order_id=${data?.data?.id}`;
         }
+        console.log('Payment initiated successfully2 :', data);
         data = data?.data?.data;
+        console.log('Payment initiated successfully3 :', data);
         let urlInfo = data?.instrumentResponse?.redirectInfo;
         if (urlInfo) {
-          window.href = urlInfo?.url;
+            console.log('Payment initiated successfully4 :', urlInfo);
+            window.open(urlInfo?.url, '_self'); 
+          console.log('url: ' , urlInfo?.url)
+          console.log('redirected to: ', urlInfo?.url);
         }
       } else {
         alert("Payment initiate error.");
