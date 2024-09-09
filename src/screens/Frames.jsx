@@ -48,8 +48,8 @@ const Frames = () => {
     const [cross, setCross] = useState(false);
     const [value, setValue] = useState('');
     const [type, setType] = useState('');
-    const [size1, setSize1] = useState("16x9");
-    const [numberOfFrames, setNumberOfFrames] = useState(0);
+    const [size1, setSize1] = useState("1x1");
+    const [numberOfFrames, setNumberOfFrames] = useState();
     const [sizes, setSizes] = useState([]);
 
 
@@ -74,6 +74,13 @@ const Frames = () => {
     useLayoutEffect(() => {
         window.scrollTo(scrollX, scrollY);
     });
+
+    useEffect(() => {
+        // Update numberOfFrames whenever images changes
+        setNumberOfFrames(images.length); 
+        console.log('images.length', images.length);
+        console.log('images: ', images);
+      }, [images]);
 
     async function createwBlobUrl(imageUrl) {
         return await getImage(imageUrl, "products")
@@ -254,7 +261,6 @@ const Frames = () => {
         globalImages = tempData
         setFramesAll(tempFinalData);
         setImages(globalImages);
-        console.log(images);
         dispatch(loaderAction(false));
         dispatch(showCheckOutAction(true));
         const tempData2 = [...globalImages];
@@ -526,13 +532,19 @@ const Frames = () => {
 
                                     }}
                                     onDelete={async (index) => {
-                                        const tempData = globalImages.filter((item, subIndex) => { return subIndex != index })
-                                        setImages(tempData)
-                                        await handleUnlinkFile(globalImages?.[index]?.url)
-                                        globalImages?.[index]?.frameUrl && await handleUnlinkFile(globalImages?.[index]?.frameUrl)
-                                        globalImages?.[index]?.original_image && await handleUnlinkFile(globalImages?.[index]?.original_image)
-                                        globalImages = tempData;
-                                        updateAndSaveImagesInLocalStorage(globalImages)
+                                        const tempData = globalImages.filter((item, subIndex) => subIndex != index);
+                                    
+                                        // Handle file unlinking
+                                        await handleUnlinkFile(globalImages?.[index]?.url);
+                                        globalImages?.[index]?.frameUrl && await handleUnlinkFile(globalImages?.[index]?.frameUrl);
+                                        globalImages?.[index]?.original_image && await handleUnlinkFile(globalImages?.[index]?.original_image);
+                                    
+                                        // Update globalImages with a new array
+                                        globalImages = [...tempData]; 
+                                    
+                                        // Update localStorage *before* setting the images state
+                                        updateAndSaveImagesInLocalStorage(globalImages); 
+                                        setImages(tempData);
                                     }}
                                     onDeleteSticker={(index, subItem, sticketIndex) => {
                                         const tempData = globalImages.map((item, subIndex) => {
