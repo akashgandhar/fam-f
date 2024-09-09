@@ -69,6 +69,7 @@ function App() {
 
   return (
     <ProductProvider>
+      <FrameProvider>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/terms" element={<Terms />} />
@@ -97,6 +98,7 @@ function App() {
       <Loader />
       <Toaster />
       {showLogin && <Login onCancleClick={() => dispatch(showLoginAction(false))} />}
+        </FrameProvider>
     </ProductProvider>
   );
 }

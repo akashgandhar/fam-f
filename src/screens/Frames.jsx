@@ -26,6 +26,7 @@ import { baseUrl } from "../theme/appConstants";
 import fileUpload from "../components/fileUploader/fileUpload";
 import { getImage } from "../components/fileUploader/getImage";
 import { handleUnlinkFile } from "../components/fileUploader/deleteImg";
+import { useFrameContext } from "../context/FrameContext";
 
 var globalImages = []
 const Frames = () => {
@@ -49,7 +50,8 @@ const Frames = () => {
     const [value, setValue] = useState('');
     const [type, setType] = useState('');
     const [size1, setSize1] = useState("1x1");
-    const [numberOfFrames, setNumberOfFrames] = useState();
+    // const [numberOfFrames, setNumberOfFrames] = useState();
+    const [numberOfFrames, setNumberOfFrames] = useFrameContext();
     const [sizes, setSizes] = useState([]);
 
 
@@ -76,7 +78,12 @@ const Frames = () => {
     });
 
     useEffect(() => {
-        // Update numberOfFrames whenever images changes
+      console.log('numberOfFrames: ',numberOfFrames)
+    }, [numberOfFrames])
+    
+
+    useEffect(() => {
+        // Update numberOfFrames whenever images changes (for subsequent changes, not initial load)
         setNumberOfFrames(images.length); 
         console.log('images.length', images.length);
         console.log('images: ', images);
@@ -88,15 +95,16 @@ const Frames = () => {
 
     useEffect(() => {
         async function fetchData() {
-            try {
-                const localData = await getLocalStorageData();
-                setOldImages(localData);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
+          try {
+            const localData = await getLocalStorageData();
+            setImages(localData); // Set images from local storage
+            setNumberOfFrames(localData.length); // Update numberOfFrames based on loaded data
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
         }
         fetchData();
-    }, []);
+      }, []);
 
     useEffect(() => {
         if (oldImages && oldImages.length > 0) {
@@ -128,36 +136,47 @@ const Frames = () => {
         e.preventDefault();
         if (e.target.files?.length > 0) {
             dispatch(loaderAction(true));
-            const tempData = [...images];
-            for (let item of e.target.files) {
-                const url = await fileUpload(item)
 
-                tempData.push({
-                    file: item,
-                    url: url,
-                    frame: 0,
-                    effect: '',
-                    text: '',
-                    mat: 0,
-                    sticker: [],
-                    rangeValue: '1',
-                    div1Class: 'frame-one',
-                    div2Class: 'sub-frame-inner',
-                    div3Class: 'frame-image-large',
-                    scale: 'translate(0px,0px) rotate(0deg) scale(1)',
-                    textPosition: { x: 0, y: 0 },
-                    isShowBoundry: true,
-                    scaleValue: '1',
-                    localUrl: URL.createObjectURL(item),
-                    size: size1,
+            const fileProcessingPromises = Array.from(e.target.files).map(async (item) => {
+                const url = await fileUpload(item);
+
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const dataUrl = event.target.result;
+                        resolve({
+                            file: item,
+                            url: url,
+                            frame: 0,
+                            effect: '',
+                            text: '',
+                            mat: 0,
+                            sticker: [],
+                            rangeValue: '1',
+                            div1Class: 'frame-one',
+                            div2Class: 'sub-frame-inner',
+                            div3Class: 'frame-image-large',
+                            scale: 'translate(0px,0px) rotate(0deg) scale(1)',
+                            textPosition: { x: 0, y: 0 },
+                            isShowBoundry: true,
+                            scaleValue: '1',
+                            localUrl: dataUrl, 
+                            size: size1,
+                        });
+                    };
+                    reader.readAsDataURL(item);
                 });
-            }
-            setImages(tempData);
-            updateAndSaveImagesInLocalStorage(tempData)
-            globalImages = tempData;
+            });
+
+            const newImageData = await Promise.all(fileProcessingPromises);
+
+            const updatedImages = [...images, ...newImageData];
+            setImages(updatedImages);
+            updateAndSaveImagesInLocalStorage(updatedImages);
+            globalImages = updatedImages;
             dispatch(loaderAction(false));
         }
-    }
+    };
 
     // const handleSizeChange = (newSize) => {
     //     if (newSize === null) {
@@ -278,16 +297,35 @@ const Frames = () => {
         let initialImages = [];
         if (storedImages) {
             const parsedImages = JSON.parse(storedImages);
+            
+            // If the count matches, update existing images
             if (parsedImages?.length === numberOfFrames) {
                 initialImages = parsedImages.map(item => ({
                     ...item,
                     width: frameWidth,
                     height: frameHeight,
                 }));
+            } 
+            // If the count doesn't match, handle it appropriately (add/remove frames)
+            else {
+                // Logic to adjust initialImages based on numberOfFrames
+                if (parsedImages.length < numberOfFrames) {
+                    // Add new frames with default values
+                    const newFrames = Array.from({ length: numberOfFrames - parsedImages.length }, (_, index) => ({
+                        width: frameWidth,
+                        height: frameHeight,
+                        // ... other default properties
+                    }));
+                    initialImages = [...parsedImages, ...newFrames]; 
+                } else if (parsedImages.length > numberOfFrames) {
+                    // Remove extra frames
+                    initialImages = parsedImages.slice(0, numberOfFrames); 
+                }
             }
         }
 
-        if (initialImages?.length === 0) {
+        // Only create new images if there's no data in localStorage
+        if (initialImages.length === 0) { 
             initialImages = Array.from({ length: numberOfFrames }, (_, index) => {
                 const scaleToFit = Math.min(frameWidth / 400, frameHeight / 300);
 
