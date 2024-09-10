@@ -27,6 +27,8 @@ import fileUpload from "../components/fileUploader/fileUpload";
 import { getImage } from "../components/fileUploader/getImage";
 import { handleUnlinkFile } from "../components/fileUploader/deleteImg";
 import { useFrameContext } from "../context/FrameContext";
+import { useLocation } from "react-router-dom";
+import { Button } from "react-bootstrap";
 
 var globalImages = []
 const Frames = () => {
@@ -51,8 +53,10 @@ const Frames = () => {
     const [type, setType] = useState('');
     const [size1, setSize1] = useState("1x1");
     // const [numberOfFrames, setNumberOfFrames] = useState();
-    const [numberOfFrames, setNumberOfFrames] = useFrameContext();
+    const [numberOfFrames, setNumberOfFrames, framesPreset, setFramesPreset] = useFrameContext();
     const [sizes, setSizes] = useState([]);
+    const location = useLocation();
+    const [initialFramesPreset, setInitialFramesPreset] = useState(0);
 
 
     function calculateFrameDimensions(aspectRatioString) {
@@ -73,21 +77,29 @@ const Frames = () => {
         return [frameWidth, frameHeight];
     }
 
+    useEffect(() => {
+        const presetFromLocation = location.state?.framesPreset || framesPreset;
+        setInitialFramesPreset(presetFromLocation);
+        if (presetFromLocation > numberOfFrames) {
+            // alert(`You have to add ${presetFromLocation - numberOfFrames} more frames to complete the order.`);
+        }
+    }, [location.state, framesPreset, initialFramesPreset, numberOfFrames]);
+
     useLayoutEffect(() => {
         window.scrollTo(scrollX, scrollY);
     });
 
     useEffect(() => {
-      console.log('numberOfFrames: ',numberOfFrames)
+        console.log('numberOfFrames: ', numberOfFrames)
     }, [numberOfFrames])
-    
+
 
     useEffect(() => {
         // Update numberOfFrames whenever images changes (for subsequent changes, not initial load)
-        setNumberOfFrames(images.length); 
+        setNumberOfFrames(images.length);
         console.log('images.length', images.length);
         console.log('images: ', images);
-      }, [images]);
+    }, [images]);
 
     async function createwBlobUrl(imageUrl) {
         return await getImage(imageUrl, "products")
@@ -95,16 +107,16 @@ const Frames = () => {
 
     useEffect(() => {
         async function fetchData() {
-          try {
-            const localData = await getLocalStorageData();
-            setImages(localData); // Set images from local storage
-            setNumberOfFrames(localData.length); // Update numberOfFrames based on loaded data
-          } catch (error) {
-            console.error('Error fetching data:', error);
-          }
+            try {
+                const localData = await getLocalStorageData();
+                setImages(localData); // Set images from local storage
+                setNumberOfFrames(localData.length); // Update numberOfFrames based on loaded data
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
         }
         fetchData();
-      }, []);
+    }, []);
 
     useEffect(() => {
         if (oldImages && oldImages.length > 0) {
@@ -112,9 +124,6 @@ const Frames = () => {
             globalImages = oldImages
         }
     }, [oldImages]);
-
-
-
 
     async function getLocalStorageData() {
         const storedData = localStorage.getItem('family_vibes_images_data');
@@ -160,7 +169,7 @@ const Frames = () => {
                             textPosition: { x: 0, y: 0 },
                             isShowBoundry: true,
                             scaleValue: '1',
-                            localUrl: dataUrl, 
+                            localUrl: dataUrl,
                             size: size1,
                         });
                     };
@@ -297,7 +306,7 @@ const Frames = () => {
         let initialImages = [];
         if (storedImages) {
             const parsedImages = JSON.parse(storedImages);
-            
+
             // If the count matches, update existing images
             if (parsedImages?.length === numberOfFrames) {
                 initialImages = parsedImages.map(item => ({
@@ -305,7 +314,7 @@ const Frames = () => {
                     width: frameWidth,
                     height: frameHeight,
                 }));
-            } 
+            }
             // If the count doesn't match, handle it appropriately (add/remove frames)
             else {
                 // Logic to adjust initialImages based on numberOfFrames
@@ -316,16 +325,16 @@ const Frames = () => {
                         height: frameHeight,
                         // ... other default properties
                     }));
-                    initialImages = [...parsedImages, ...newFrames]; 
+                    initialImages = [...parsedImages, ...newFrames];
                 } else if (parsedImages.length > numberOfFrames) {
                     // Remove extra frames
-                    initialImages = parsedImages.slice(0, numberOfFrames); 
+                    initialImages = parsedImages.slice(0, numberOfFrames);
                 }
             }
         }
 
         // Only create new images if there's no data in localStorage
-        if (initialImages.length === 0) { 
+        if (initialImages.length === 0) {
             initialImages = Array.from({ length: numberOfFrames }, (_, index) => {
                 const scaleToFit = Math.min(frameWidth / 400, frameHeight / 300);
 
@@ -358,10 +367,25 @@ const Frames = () => {
 
     return (
         <div className="UserAdmin">
-            <Header showCheckout={images?.length > 0} convertHtmlToImg={convertHtmlToImg} />
+            <Header showCheckout={images?.length > 0 && numberOfFrames >= initialFramesPreset} convertHtmlToImg={convertHtmlToImg} />
             <section className="h-100">
                 <div className="frame-main h-100">
                     <div id='mainFrameScrollContainer' className="h-100">
+                        {
+                            initialFramesPreset != 0 && initialFramesPreset > numberOfFrames && (
+                                <div className="alert alert-danger text-center">
+                                    You have to add {initialFramesPreset - numberOfFrames} more frames to complete the order.
+                                    {/*set initial frame preset to 0 on clicking reset button*/}
+                                    <Button variant="danger" onClick={() => {
+                                        setInitialFramesPreset(0);
+                                        setFramesPreset(0);
+                                        if (location.state) {
+                                            location.state.framesPreset = 0;
+                                        }
+                                    }}>Reset</Button>
+                                </div>
+                            )
+                        }
                         {images?.length > 0 && (
                             <BottomSelector
                                 setImages={setImages}
@@ -571,17 +595,17 @@ const Frames = () => {
                                     }}
                                     onDelete={async (index) => {
                                         const tempData = globalImages.filter((item, subIndex) => subIndex != index);
-                                    
+
                                         // Handle file unlinking
                                         await handleUnlinkFile(globalImages?.[index]?.url);
                                         globalImages?.[index]?.frameUrl && await handleUnlinkFile(globalImages?.[index]?.frameUrl);
                                         globalImages?.[index]?.original_image && await handleUnlinkFile(globalImages?.[index]?.original_image);
-                                    
+
                                         // Update globalImages with a new array
-                                        globalImages = [...tempData]; 
-                                    
+                                        globalImages = [...tempData];
+
                                         // Update localStorage *before* setting the images state
-                                        updateAndSaveImagesInLocalStorage(globalImages); 
+                                        updateAndSaveImagesInLocalStorage(globalImages);
                                         setImages(tempData);
                                     }}
                                     onDeleteSticker={(index, subItem, sticketIndex) => {
@@ -810,61 +834,61 @@ export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, upd
     //     )
     // }
 
-     const handleColorClick = (hexColor) => {
-    if (selectedFrame > -1) {
-      const updatedImages = [...globalImages];
-      updatedImages[selectedFrame].div1Class = `frame-one ${hexColor}`; // Apply the selected color directly
-      setImages(updatedImages);
-      globalImages = updatedImages;
-      updateAndSaveImagesInLocalStorage(globalImages);
+    const handleColorClick = (hexColor) => {
+        if (selectedFrame > -1) {
+            const updatedImages = [...globalImages];
+            updatedImages[selectedFrame].div1Class = `frame-one ${hexColor}`; // Apply the selected color directly
+            setImages(updatedImages);
+            globalImages = updatedImages;
+            updateAndSaveImagesInLocalStorage(globalImages);
 
-      const frameElement = div1Ref.current[selectedFrame];
-      if (frameElement) {
-        frameElement.style.setProperty('--frame-color', hexColor);
-        frameElement.style.setProperty('--shadow-color', hexColor); // Set shadow color to match frame color
-      }
-    }
-  };
+            const frameElement = div1Ref.current[selectedFrame];
+            if (frameElement) {
+                frameElement.style.setProperty('--frame-color', hexColor);
+                frameElement.style.setProperty('--shadow-color', hexColor); // Set shadow color to match frame color
+            }
+        }
+    };
 
-      if (type === 'frame') {
+    if (type === 'frame') {
         return (
-          <div className="ToolBox Frame">
-            <div className={`toolContent ${frame === 0 ? 'activeEffect' : ''}`} onClick={() => setFrame(0)}>
-              <img src={BlackFrameIcon} width={60} height={60} alt="FrameIcon" />
-              <span>Black</span>
-              {/* Display color options for the black frame */}
-              {colors.map(color => (
-                <div
-                  key={color._id}
-                  className={`colorOption ${globalImages[selectedFrame]?.div1Class?.includes(color.hex) ? 'activeColor' : ''}`}
-                  onClick={() => handleColorClick(color.hex, 0)} // Pass 0 for black frame
-                  style={{ backgroundColor: color.hex }}
-                ></div>
-              ))}
+            <div className="ToolBox Frame">
+                <div className={`toolContent ${frame === 0 ? 'activeEffect' : ''}`} onClick={() => setFrame(0)}>
+                    <img src={BlackFrameIcon} width={60} height={60} alt="FrameIcon" />
+                    <span>Black</span>
+                    {/* Display color options for the black frame */}
+                    {colors.map(color => (
+                        <div
+                            key={color._id}
+                            className={`colorOption ${globalImages[selectedFrame]?.div1Class?.includes(color.hex) ? 'activeColor' : ''}`}
+                            onClick={() => handleColorClick(color.hex, 0)} // Pass 0 for black frame
+                            style={{ backgroundColor: color.hex }}
+                        ></div>
+                    ))}
+                </div>
+                <div className={`toolContent ${frame === 1 ? 'activeEffect' : ''}`} onClick={() => setFrame(1)}>
+                    <img src={WhiteFrameIcon} width={60} height={60} alt="EffectIcon" />
+                    <span>White</span>
+                    {/* Display color options for the white frame */}
+                    {colors.map(color => (
+                        <div
+                            key={color._id}
+                            className={`colorOption ${globalImages[selectedFrame]?.div1Class?.includes(color.hex) ? 'activeColor' : ''}`}
+                            onClick={() => handleColorClick(color.hex, 1)} // Pass 1 for white frame
+                            style={{ backgroundColor: color.hex }}
+                        ></div>
+                    ))}
+                </div>
+                <div className={`toolContent ${frame === 2 ? 'activeEffect' : ''}`} onClick={() => setFrame(2)}>
+                    <img src={FrameLessIcon} width={60} height={60} alt="MatIcon" />
+                    <span>Wood</span>
+                </div>
+                <div onClick={() => setType('')} className="goback_cta">
+                    Go Back
+                </div>
             </div>
-            <div className={`toolContent ${frame === 1 ? 'activeEffect' : ''}`} onClick={() => setFrame(1)}>
-              <img src={WhiteFrameIcon} width={60} height={60} alt="EffectIcon" />
-              <span>White</span>
-              {/* Display color options for the white frame */}
-              {colors.map(color => (
-                <div
-                  key={color._id}
-                  className={`colorOption ${globalImages[selectedFrame]?.div1Class?.includes(color.hex) ? 'activeColor' : ''}`}
-                  onClick={() => handleColorClick(color.hex, 1)} // Pass 1 for white frame
-                  style={{ backgroundColor: color.hex }}
-                ></div>
-              ))}
-            </div>
-            <div className={`toolContent ${frame === 2 ? 'activeEffect' : ''}`} onClick={() => setFrame(2)}>
-              <img src={FrameLessIcon} width={60} height={60} alt="MatIcon" />
-              <span>Wood</span>
-            </div>
-            <div onClick={() => setType('')} className="goback_cta">
-              Go Back
-            </div>
-          </div>
         );
-      }
+    }
     else if (type === 'effect') {
         return (
             <div className="ToolBox Effect">

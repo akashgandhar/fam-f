@@ -4,7 +4,7 @@ import ReviewSliderContainer from './ReviewSliderContainer';
 import VideoContainer from './VideoContainer';
 import Footer from '../Footer';
 import { useSelector } from 'react-redux';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import YoutubeThumbnail from '../../assets/images/capture.png';
 import { useEffect, useRef, useState } from 'react';
 import { getImage } from '../../components/fileUploader/getImage';
@@ -14,6 +14,7 @@ import 'react-multi-carousel/lib/styles.css';
 import axios from 'axios';
 import { Link, Navigate } from 'react-router-dom';
 import { shuffle } from 'lodash';
+import { useFrameContext } from '../../context/FrameContext';
 
 
 
@@ -24,6 +25,8 @@ const HomeUI = () => {
     const popupData = homeData?.popup;
     const [frameNumbers, setFrameNumbers] = useState([]);
     const navigate = useNavigate();
+    const [framesPreset, setFramesPreset] = useFrameContext();
+    const location = useLocation();
 
     useEffect(() => {
         // Fetch frame numbers from the backend
@@ -41,8 +44,12 @@ const HomeUI = () => {
     }, []);
 
     const handleAddToCart = (numberOfFrames) => {
-        navigate('/frames');
+        console.log('numberOfFrames in HomeUI:', numberOfFrames);
+        setFramesPreset(numberOfFrames); 
+        console.log('framesPreset in HomeUI:', framesPreset); 
+        navigate('/frames', { state: { framesPreset: numberOfFrames } }); // Pass framesPreset in state
     };
+
     const responsive = {
         superLargeDesktop: {
             // the naming can be any, depends on you.
