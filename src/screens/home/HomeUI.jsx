@@ -267,7 +267,7 @@ const HomeUI = () => {
                         </p>
                     </div>
                     <div className='bg-banner bg-fixed-grad d-flex justify-content-center'>
-                        <NavLink to={'/frames/12'} className="btn btn-orange rounded-pill wow fadeInDown my-5  " role='button' id="gt"> Customise </NavLink>
+                        <NavLink to={'/frames'} className="btn btn-orange rounded-pill wow fadeInDown my-5  " role='button' id="gt"> Customise </NavLink>
                     </div>
                 </div>
 
