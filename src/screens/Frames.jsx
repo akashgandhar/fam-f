@@ -80,9 +80,7 @@ const Frames = () => {
     useEffect(() => {
         const presetFromLocation = location.state?.framesPreset || framesPreset;
         setInitialFramesPreset(presetFromLocation);
-        if (presetFromLocation > numberOfFrames) {
-            // alert(`You have to add ${presetFromLocation - numberOfFrames} more frames to complete the order.`);
-        }
+
     }, [location.state, framesPreset, initialFramesPreset, numberOfFrames]);
 
     useLayoutEffect(() => {
@@ -280,8 +278,10 @@ const Frames = () => {
                     "quantity": 1,
                     "picture": urlWF,
                     "frame": url,
-                    "original_image": original_image
+                    "original_image": original_image,
+                    "size": previousimage[item].size,
                 })
+                console.log('tempFinalData', tempFinalData);
             } catch (error) {
                 console.log('########@@2', error);
             }
@@ -569,101 +569,121 @@ const Frames = () => {
                             // handleSizeChange={handleSizeChange}
                             />
                         )}
-                        {images?.length == 0 ? createButton() :
-                            images.map((item, index) => {
 
-                                return <FrameContainer item={item} index={index} key={Math.random().toString()}
-                                    selectedFrame={selectedFrame}
-                                    onSelectedFrame={(indexS) => {
-                                        setImages(globalImages)
-                                        setSelectedFrame(indexS)
-                                        updateAndSaveImagesInLocalStorage(globalImages)
-                                    }}
-                                    deleteText={() => {
-                                        const tempData = globalImages.map((item, subIndex) => {
-                                            const tempData = { ...item };
-                                            if (subIndex == index) {
-                                                tempData["text"] = ""
-                                            }
-                                            return tempData
-                                        })
-                                        setImages(tempData)
-                                        setValue("")
-                                        globalImages = tempData
-                                        updateAndSaveImagesInLocalStorage(globalImages)
+                        {images?.length == 0 && initialFramesPreset < 1 ? createButton() :
+                            //  {images?.length === 0 ? createButton() :
+                            <>
+                            <div className="EmptyFramesRow" style={{ display: 'flex', flexWrap: 'wrap' }}> 
 
-                                    }}
-                                    onDelete={async (index) => {
-                                        const tempData = globalImages.filter((item, subIndex) => subIndex != index);
+                            {Array.from({ length: initialFramesPreset - numberOfFrames }).map((_, i) => (
+                                    <div className="frame-one" style={{ width: '400px', height: '300px' }} key={i}>
+                                        <div className="sub-frame-inner">
+                                            <div className="toolContent zoom-in-out-box" role="button" onClick={() => {
+                                                ref.current.click()
+                                            }} >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="#ff5814"
+                                                    viewBox="0 0 512 512"
+                                                >
+                                                    <path d="M149.1 64.8L138.7 96H64C28.7 96 0 124.7 0 160V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H373.3L362.9 64.8C356.4 45.2 338.1 32 317.4 32H194.6c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z" />
+                                                </svg>
+                                                <span style={{ color: "#ff5814" }}>Add Frame</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                </div>
 
-                                        // Handle file unlinking
-                                        await handleUnlinkFile(globalImages?.[index]?.url);
-                                        globalImages?.[index]?.frameUrl && await handleUnlinkFile(globalImages?.[index]?.frameUrl);
-                                        globalImages?.[index]?.original_image && await handleUnlinkFile(globalImages?.[index]?.original_image);
+                                {images.map((item, index) => (
+                                    <FrameContainer item={item} index={index} key={Math.random().toString()}
+                                        selectedFrame={selectedFrame}
+                                        onSelectedFrame={(indexS) => {
+                                            setImages(globalImages);
+                                            setSelectedFrame(indexS);
+                                            updateAndSaveImagesInLocalStorage(globalImages);
+                                        }}
+                                        deleteText={() => {
+                                            const tempData = globalImages.map((item, subIndex) => {
+                                                const tempData = { ...item };
+                                                if (subIndex === index) {
+                                                    tempData["text"] = "";
+                                                }
+                                                return tempData;
+                                            });
+                                            setImages(tempData);
+                                            setValue("");
+                                            globalImages = tempData;
+                                            updateAndSaveImagesInLocalStorage(globalImages);
+                                        }}
+                                        onDelete={async (index) => {
+                                            const tempData = globalImages.filter((item, subIndex) => subIndex !== index);
 
-                                        // Update globalImages with a new array
-                                        globalImages = [...tempData];
+                                            // Handle file unlinking
+                                            await handleUnlinkFile(globalImages?.[index]?.url);
+                                            globalImages?.[index]?.frameUrl && await handleUnlinkFile(globalImages?.[index]?.frameUrl);
+                                            globalImages?.[index]?.original_image && await handleUnlinkFile(globalImages?.[index]?.original_image);
 
-                                        // Update localStorage *before* setting the images state
-                                        updateAndSaveImagesInLocalStorage(globalImages);
-                                        setImages(tempData);
-                                    }}
-                                    onDeleteSticker={(index, subItem, sticketIndex) => {
-                                        const tempData = globalImages.map((item, subIndex) => {
-                                            const tempData = { ...item };
-                                            if (subIndex == index) {
-                                                const tempStickers = tempData.sticker.filter((stickerItem, index) => {
-                                                    return index !== sticketIndex;
-                                                });
-                                                tempData.sticker = tempStickers;
-                                            }
-                                            return tempData
-                                        })
-                                        setImages(tempData)
-                                        globalImages = tempData
-                                        updateAndSaveImagesInLocalStorage(globalImages)
+                                            // Update globalImages with a new array
+                                            globalImages = [...tempData];
 
-                                    }}
-                                    onSizePass={(index, data, sticketIndex) => {
-                                        const tempData = globalImages.map((item, subIndex) => {
-                                            const tempData = { ...item };
-                                            if (subIndex == index) {
-                                                tempData.sticker[sticketIndex].size = data
-                                            }
-                                            return tempData
-                                        })
-                                        globalImages = tempData
-                                        updateAndSaveImagesInLocalStorage(globalImages)
-                                    }}
-                                    onPosition={(index, data, sticketIndex) => {
-                                        const tempData = globalImages.map((item, subIndex) => {
-                                            const tempData = { ...item };
-                                            if (subIndex == index) {
-                                                tempData.sticker[sticketIndex].position = data
-                                            }
-                                            return tempData
-                                        })
-                                        globalImages = tempData
-                                        updateAndSaveImagesInLocalStorage(globalImages)
-                                    }}
-                                    onTextPosition={(index, data) => {
-                                        const tempData = globalImages[index]
-                                        tempData.textPosition = data
-                                        globalImages[index] = tempData
-                                        updateAndSaveImagesInLocalStorage(globalImages)
-                                    }}
-                                    cross={cross} setCross={setCross}
-                                    ref={imgRef}
-                                    div1Ref={div1Ref}
-                                    div2Ref={div2Ref}
-                                    divTextRef={divTextRef}
-                                    div3Ref={div3Ref}
-                                    divMainRef={divMainRef}
-                                    size={size1}
-                                    // onSizeChange={handleSizeChange}
-                                    setSize1={setSize1}
-                                />
-                            })
+                                            // Update localStorage *before* setting the images state
+                                            updateAndSaveImagesInLocalStorage(globalImages);
+                                            setImages(tempData);
+                                        }}
+                                        onDeleteSticker={(index, subItem, sticketIndex) => {
+                                            const tempData = globalImages.map((item, subIndex) => {
+                                                const tempData = { ...item };
+                                                if (subIndex === index) {
+                                                    const tempStickers = tempData.sticker.filter((stickerItem, index) => index !== sticketIndex);
+                                                    tempData.sticker = tempStickers;
+                                                }
+                                                return tempData;
+                                            });
+                                            setImages(tempData);
+                                            globalImages = tempData;
+                                            updateAndSaveImagesInLocalStorage(globalImages);
+                                        }}
+                                        onSizePass={(index, data, sticketIndex) => {
+                                            const tempData = globalImages.map((item, subIndex) => {
+                                                const tempData = { ...item };
+                                                if (subIndex === index) {
+                                                    tempData.sticker[sticketIndex].size = data;
+                                                }
+                                                return tempData;
+                                            });
+                                            globalImages = tempData;
+                                            updateAndSaveImagesInLocalStorage(globalImages);
+                                        }}
+                                        onPosition={(index, data, sticketIndex) => {
+                                            const tempData = globalImages.map((item, subIndex) => {
+                                                const tempData = { ...item };
+                                                if (subIndex === index) {
+                                                    tempData.sticker[sticketIndex].position = data;
+                                                }
+                                                return tempData;
+                                            });
+                                            globalImages = tempData;
+                                            updateAndSaveImagesInLocalStorage(globalImages);
+                                        }}
+                                        onTextPosition={(index, data) => {
+                                            const tempData = globalImages[index];
+                                            tempData.textPosition = data;
+                                            globalImages[index] = tempData;
+                                            updateAndSaveImagesInLocalStorage(globalImages);
+                                        }}
+                                        cross={cross} setCross={setCross}
+                                        ref={imgRef}
+                                        div1Ref={div1Ref}
+                                        div2Ref={div2Ref}
+                                        divTextRef={divTextRef}
+                                        div3Ref={div3Ref}
+                                        divMainRef={divMainRef}
+                                        size={size1}
+                                        setSize1={setSize1}
+                                    />
+                                ))}
+                            </>
                         }
                     </div>
                 </div>
@@ -1174,15 +1194,20 @@ export const FrameContainer = React.forwardRef((props, ref) => {
                     </div>
                 </div>
             </div>
-            <div className="frameMessage">
+            <div className="frameMessage mt-3">
                 <span className="frameImageError" ref={warnRef}>{''}</span>
                 <span
                     onClick={() => {
-                        if (selectedFrame == index) {
-                            onSelectedFrame(-1)
+                        if (selectedFrame === index) {
+                            onSelectedFrame(-1);
+                        } else {
+                            onSelectedFrame(index);
                         }
-                        else onSelectedFrame(index)
-                    }} className={selectedFrame == index ? 'badge badge-success' : 'badge badge-secondary'} >{selectedFrame == index ? 'Selected' : 'Select'}</span>
+                    }}
+                    className={selectedFrame === index ? 'badge badge-success' : 'badge badge-secondary'}
+                >
+                    {selectedFrame === index ? 'Selected' : 'Select'}
+                </span>
                 <span onClick={() => onDelete(index)} className="badge badge-danger">{'Delete'}</span>
             </div>
         </div>

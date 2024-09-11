@@ -292,7 +292,7 @@ const HomeUI = () => {
                     </div>
 
                 <Carousel responsive={responsive} infinite={true} autoPlay={true} autoPlaySpeed={3000}>
-                    {shuffle(frameNumbers).slice(0, 7).map((item) => (
+                    {frameNumbers.slice(0, 7).map((item) => (
                         <div key={item._id} className="col mb-4 mb-lg-0 wow fadeInUp">
                             <div className="position-relative card-container">
                                 <div className="dec1 d-flex align-items-center justify-content-center">
