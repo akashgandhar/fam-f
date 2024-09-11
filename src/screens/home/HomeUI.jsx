@@ -6,7 +6,7 @@ import Footer from '../Footer';
 import { useSelector } from 'react-redux';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import YoutubeThumbnail from '../../assets/images/capture.png';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { getImage } from '../../components/fileUploader/getImage';
 import { imgUrl } from '../../theme/appConstants';
 import Carousel from 'react-multi-carousel';
@@ -15,6 +15,7 @@ import axios from 'axios';
 import { Link, Navigate } from 'react-router-dom';
 import { shuffle } from 'lodash';
 import { useFrameContext } from '../../context/FrameContext';
+import { ProductContext } from '../../context/ProductContext';
 
 
 
@@ -27,6 +28,7 @@ const HomeUI = () => {
     const navigate = useNavigate();
     const [framesPreset, setFramesPreset] = useFrameContext();
     const location = useLocation();
+    const { selectedProduct, setSelectedProduct } = useContext(ProductContext);
 
     useEffect(() => {
         // Fetch frame numbers from the backend
@@ -83,6 +85,8 @@ const HomeUI = () => {
         }
         return YoutubeThumbnail
     }
+
+    
 
 
     useEffect(() => {
@@ -193,9 +197,11 @@ const HomeUI = () => {
 
     };
     //handle buy now
-    const handleBuyNow = (item) => {
-        navigate('/product/' + item._id);
-    }
+    const handleBuyNowClick = async (product) => {
+        //navigate to /checkout
+        setSelectedProduct(product)
+        navigate('/checkout');
+    };
 
 
     return (
@@ -311,7 +317,7 @@ const HomeUI = () => {
                                             onClick={() =>
                                                 item.type === "frame"
                                                     ? handleAddToCart(item.numberOfFrames)
-                                                    : handleBuyNow(item)
+                                                    : handleBuyNowClick(item)
                                             }
                                             className="btn btn-orange rounded-pill"
                                         >

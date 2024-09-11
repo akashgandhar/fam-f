@@ -10,6 +10,7 @@ import Loader from '../../components/loader';
 import { showCheckOutAction, showProductsCheckoutAction, loaderAction } from '../../redux/actions/global';
 import CheckoutForProducts from '../Components/CheckoutForProducts';
 import { ProductContext } from '../../context/ProductContext';
+import { useFrameContext } from '../../context/FrameContext';
 
 const ProductCard = styled.div`
   border: 1px solid #ddd;
@@ -49,7 +50,8 @@ const ProductsPage = () => {
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { selectedProduct , setSelectedProduct } = useContext(ProductContext);
+    const { selectedProduct, setSelectedProduct } = useContext(ProductContext);
+    const [framesPreset, setFramesPreset] = useFrameContext(); // Get framesPreset and setFramesPreset from context
     const navigate = useNavigate();
 
 
@@ -73,9 +75,11 @@ const ProductsPage = () => {
 
     };
 
-    const handleAddToCart = (item) => {
-        navigate('/frames');
+    const handleAddToCart = (numberOfFrames) => {
+        setFramesPreset(numberOfFrames);
+        navigate('/frames', { state: { framesPreset: numberOfFrames } });
     };
+
 
     if (isLoading) {
         return <Loader />;
@@ -90,23 +94,23 @@ const ProductsPage = () => {
     // const handleBuyNowClick = async (product) => {
     //     console.log('product', product);
     //     setSelectedProduct(product);
-    
+
     //     try {
     //         const response = await axios.post('http://localhost:8000/order/bookprod', {
     //             product: product, // Use the product passed to the function
     //             address: 'address',
     //             paymentType: 'online'
     //         });
-    
+
     //         console.log('Response from server:', response.data);
-    
+
     //         // Check if the response contains a redirect URL
     //         let { data } = response
     //         if (data.success) {
-              
-                    
+
+
     //             if (data?.data?.isFree) {
-                   
+
     //                 window.location.href = `https://familyvibes.in/thank-you?type=order&order_id=${data?.data?.id}`
     //             }
     //             data = data?.data?.data
@@ -150,7 +154,7 @@ const ProductsPage = () => {
                                         <p className="text-muted">{product.description}</p>
                                         <p>Price: ₹ {product.price}</p>
                                         <button
-                                            onClick={() => product.type === 'product' ? handleBuyNowClick(product) : handleBuyNow(product)}
+                                            onClick={() => product.type === 'product' ? handleBuyNowClick(product) : handleAddToCart(product.numberOfFrames)} // Call handleAddToCart for frames
                                             className="btn btn-orange rounded-pill"
                                         >
                                             {product.type === 'frame' ? 'Add to Cart' : 'Buy Now'}
@@ -158,7 +162,6 @@ const ProductsPage = () => {
                                     </ProductCard>
                                 </Col>
                             ))}
-
                         </Row>
                     </div>
                 </div>
