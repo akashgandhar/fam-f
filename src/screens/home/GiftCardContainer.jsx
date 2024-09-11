@@ -30,7 +30,7 @@ const GiftCardContainer = () => {
 
         const fetchFrameSizes = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/getAllFrames');
+                const response = await axios.get('http://localhost:8000/getGiftCardFrames');
                 setFrameSizes(response.data);
             } catch (error) {
                 toast.error("Failed to fetch frame sizes.");
