@@ -6,7 +6,7 @@ import Footer from '../Footer';
 import { useSelector } from 'react-redux';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import YoutubeThumbnail from '../../assets/images/capture.png';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { getImage } from '../../components/fileUploader/getImage';
 import { imgUrl } from '../../theme/appConstants';
 import Carousel from 'react-multi-carousel';
@@ -45,13 +45,13 @@ const HomeUI = () => {
         fetchFrameNumbers();
     }, []);
 
-    const handleAddToCart = (numberOfFrames) => {
+    const handleAddToCart = useCallback ( (numberOfFrames) => {
         console.log('numberOfFrames in HomeUI:', numberOfFrames);
         setFramesPreset(numberOfFrames); 
         console.log('framesPreset in HomeUI:', framesPreset); 
         navigate('/frames', { state: { framesPreset: numberOfFrames } }); // Pass framesPreset in state
-    };
-
+    });
+    
     const responsive = {
         superLargeDesktop: {
             // the naming can be any, depends on you.
