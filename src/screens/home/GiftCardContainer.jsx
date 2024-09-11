@@ -57,10 +57,11 @@ const GiftCardContainer = () => {
             toast.error("Please select a Square.");
         } else {
             dispatch(loaderAction(true));
-            buyFramesToPhonePay({ "email": email, "mobileNumber": mobileNumber, "id": giftCards[selectedBox]._id });
+            buyFramesToPhonePay({ "email": email, "mobileNumber": mobileNumber, "id": giftCards[selectedBox]._id, "size": selectedSize });
             setSelectedBox(-1);
             setEmail('');
             setMobileNumber('');
+            setSelectedSize('');
         }
     };
 
@@ -139,9 +140,7 @@ const GiftCardContainer = () => {
                                     </select>
                                 </div>
                                 <div className="form-group mb-1  wow fadeInDown">
-                                    <label>Select number of tiles
-                                        <span>Note: Gift card tiles are always 8”x8”</span>
-                                    </label>
+                                    
                                     <div className="w-100"></div>
                                     {giftCards?.length > 0 && giftCards?.sort((a, b) => a.noOfFrames - b.noOfFrames).map((giftCards, index) => (
                                         <div className="form-Checks" key={giftCards._id} onClick={() => setSelectedBox(index)}>
