@@ -57,6 +57,28 @@ const Frames = () => {
     const [sizes, setSizes] = useState([]);
     const location = useLocation();
     const [initialFramesPreset, setInitialFramesPreset] = useState(0);
+    const [selectedSize, setSelectedSize] = useState('');
+
+    useEffect(() => {
+        const fetchSizes = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/getAllFrames');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setSizes(data);
+
+                if (selectedFrame > -1 && globalImages[selectedFrame].size) {
+                    setSelectedSize(globalImages[selectedFrame].size);
+                }
+            } catch (error) {
+                console.error('Error fetching sizes:', error);
+            }
+        };
+
+        fetchSizes();
+    }, []);
 
 
     function calculateFrameDimensions(aspectRatioString) {
@@ -365,6 +387,10 @@ const Frames = () => {
         updateAndSaveImagesInLocalStorage(initialImages);
     }, [numberOfFrames, size1]);
 
+
+    console.log("sizeeee",size1);
+    
+
     return (
         <div className="UserAdmin">
             <Header showCheckout={images?.length > 0 && numberOfFrames >= initialFramesPreset} convertHtmlToImg={convertHtmlToImg} />
@@ -388,6 +414,7 @@ const Frames = () => {
                         }
                         {images?.length > 0 && (
                             <BottomSelector
+                                availableColors={sizes?.find(item => item?.size === size1)?.colors}
                                 setImages={setImages}
                                 updateAndSaveImagesInLocalStorage={updateAndSaveImagesInLocalStorage}
                                 div1Ref={div1Ref}
@@ -705,7 +732,7 @@ var frameClassGloable
 var subFrameGloable
 var rangeValueGloable = '1'
 var effectGloable, frameSizeGloable
-export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, updateDiv, selectedFrame, updateText, updateMat, value, setValue, updateRange, setSize1, setImages, updateAndSaveImagesInLocalStorage, div1Ref }) => {
+export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, updateDiv, selectedFrame, updateText, updateMat, value, setValue, updateRange, setSize1, setImages, updateAndSaveImagesInLocalStorage, div1Ref,availableColors }) => {
     const { width } = useWindowDimensions();
     const [type, setType] = useState('')
     const [frame, setFrame] = useState(-1)
@@ -718,10 +745,12 @@ export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, upd
     const imageSize = 22
     const [sizes, setSizes] = useState([]);
     const [selectedSize, setSelectedSize] = useState(null);
-    const [colors, setColors] = useState([]);
+    const [colors, setColors] = useState(availableColors);
     const [selectedColor, setSelectedColor] = useState(null);
     const [frameStyle, setFrameStyle] = useState({});
     const [subFrameStyle, setSubFrameStyle] = useState({});
+
+
 
     useEffect(() => {
         const fetchSizes = async () => {
@@ -743,27 +772,44 @@ export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, upd
 
         fetchSizes();
     }, []);
-    useEffect(() => {
-        const fetchColors = async () => {
-            try {
-                const response = await fetch('http://localhost:8000/getAllColors');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setColors(data);
 
-                if (selectedFrame > -1 && globalImages[selectedFrame].color) {
-                    setSelectedColor(globalImages[selectedFrame].color);
-                }
-            } catch (error) {
-                console.error('Error fetching colors:', error);
-            }
-        };
 
-        fetchColors();
-        console.log('colors', colors);
-    }, []);
+    
+    // my-space 
+
+    console.log("sizes", selectedSize);
+    
+    
+
+    // my-space 
+
+
+    // useEffect(() => {
+    //     if(size1)
+
+
+
+    // useEffect(() => {
+    //     const fetchColors = async () => {
+    //         try {
+    //             const response = await fetch('http://localhost:8000/getAllColors');
+    //             if (!response.ok) {
+    //                 throw new Error('Network response was not ok');
+    //             }
+    //             const data = await response.json();
+    //             setColors(data);
+
+    //             if (selectedFrame > -1 && globalImages[selectedFrame].color) {
+    //                 setSelectedColor(globalImages[selectedFrame].color);
+    //             }
+    //         } catch (error) {
+    //             console.error('Error fetching colors:', error);
+    //         }
+    //     };
+
+    //     fetchColors();
+    //     console.log('colors', colors);
+    // }, []);
 
 
 
@@ -854,6 +900,11 @@ export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, upd
     //     )
     // }
 
+
+
+
+
+
     const handleColorClick = (hexColor) => {
         if (selectedFrame > -1) {
             const updatedImages = [...globalImages];
@@ -875,7 +926,7 @@ export const BottomSelector = ({ onPlusClick, updateImageData, updateEffect, upd
             <div className="ToolBox Frame">
                 <div className={`toolContent ${frame === 0 ? 'activeEffect' : ''}`} onClick={() => setFrame(0)}>
                     <img src={BlackFrameIcon} width={60} height={60} alt="FrameIcon" />
-                    <span>Black</span>
+                    <span>{JSON.stringify(availableColors)}</span>
                     {/* Display color options for the black frame */}
                     {colors.map(color => (
                         <div
