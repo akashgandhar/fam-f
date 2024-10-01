@@ -37,6 +37,9 @@ import { Button } from "react-bootstrap";
 
 var globalImages = [];
 const Frames = () => {
+
+  
+  
   const { width } = useWindowDimensions();
   const profile = useSelector((state) => state.userReducer.user);
   const [oldImages, setOldImages] = useState([]);
@@ -68,6 +71,10 @@ const Frames = () => {
   const location = useLocation();
   const [initialFramesPreset, setInitialFramesPreset] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
+
+  useEffect(() => {
+    setImages([])
+  }, []);
 
   useEffect(() => {
     const fetchSizes = async () => {
@@ -136,8 +143,8 @@ const Frames = () => {
     async function fetchData() {
       try {
         const localData = await getLocalStorageData();
-        setImages(localData); // Set images from local storage
-        setNumberOfFrames(localData.length); // Update numberOfFrames based on loaded data
+        // setImages(localData); // Set images from local storage
+        // setNumberOfFrames(localData.length); // Update numberOfFrames based on loaded data
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -459,7 +466,7 @@ const Frames = () => {
                   </Button>
                 </div>
               )}
-            {size1}
+            
             {images?.length > 0 && (
               <BottomSelector
                 availableColors={

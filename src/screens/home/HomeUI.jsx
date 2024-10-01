@@ -273,15 +273,18 @@ const HomeUI = () => {
             </p>
           </div>
           <div className="bg-banner bg-fixed-grad d-flex justify-content-center">
-            <NavLink
-              to={"/frames"}
+            <button
+              onClick={() => {
+                // localStorage.setItem("family_vibes_images_data", []);
+                window.location.href = "/frames";
+              }}
               className="btn btn-orange rounded-pill wow fadeInDown my-5  "
               role="button"
               id="gt"
             >
               {" "}
               Customise{" "}
-            </NavLink>
+            </button>
           </div>
         </div>
       </div>
