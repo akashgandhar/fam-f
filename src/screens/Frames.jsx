@@ -37,9 +37,6 @@ import { Button } from "react-bootstrap";
 
 var globalImages = [];
 const Frames = () => {
-
-  
-  
   const { width } = useWindowDimensions();
   const profile = useSelector((state) => state.userReducer.user);
   const [oldImages, setOldImages] = useState([]);
@@ -73,7 +70,7 @@ const Frames = () => {
   const [selectedSize, setSelectedSize] = useState("");
 
   useEffect(() => {
-    setImages([])
+    setImages([]);
   }, []);
 
   useEffect(() => {
@@ -435,11 +432,17 @@ const Frames = () => {
 
   console.log("sizeeee", size1);
 
+  const [frameNumber, setFrameNumber] = useState(
+    localStorage?.getItem("FramesNumber")
+  );
+
   return (
     <div className="UserAdmin">
       <Header
         showCheckout={
-          images?.length > 0 && numberOfFrames >= initialFramesPreset
+          frameNumber >0
+            ? images?.length === Number(frameNumber)
+            : images?.length > 0
         }
         convertHtmlToImg={convertHtmlToImg}
       />
@@ -466,7 +469,26 @@ const Frames = () => {
                   </Button>
                 </div>
               )}
-            
+            {/* {frameNumber} */}
+            {frameNumber > 0 && (
+              <div className="alert alert-danger text-center">
+                {frameNumber - images?.length<0?`You have added ${ images?.length - frameNumber} extra frames, delete the extra frames to
+                complete the order.`:`You have to add ${frameNumber - images?.length} more frames to
+                complete the order.`}
+                {/*set initial frame preset to 0 on clicking reset button*/}
+                <Button style={{
+                  marginLeft: "10px"
+                }}
+                  variant="danger"
+                  onClick={() => {
+                    localStorage.setItem("FramesNumber", null);
+                    setFrameNumber(null);
+                  }}
+                >
+                  Reset
+                </Button>
+              </div>
+            )}
             {images?.length > 0 && (
               <BottomSelector
                 availableColors={
@@ -1427,13 +1449,13 @@ export const FrameContainer = React.forwardRef((props, ref) => {
   console.log("item:", item);
 
   return (
-    <div 
+    <div
       className={`FrameContainer ${
         selectedFrame == index ? "SelectedFrame" : ""
       }`}
     >
-        {/* {JSON.stringify(color1)} */}
-      <div 
+      {/* {JSON.stringify(color1)} */}
+      <div
         className="ImageContainer"
         ref={(temp) => {
           divMainRef.current[index] = temp;
@@ -1453,8 +1475,8 @@ export const FrameContainer = React.forwardRef((props, ref) => {
           style={{
             border: `12px solid`,
             borderColor: color1 ? color1 : "black",
-            height: '325px',
-            width: '325px',
+            height: "325px",
+            width: "325px",
             boxShadow: `
               1px 1px 0px #6C6B6B,
               2px 2px 0px #6C6B6B,
@@ -1464,7 +1486,7 @@ export const FrameContainer = React.forwardRef((props, ref) => {
               6px 6px 0px #6C6B6B,
               7px 7px 0px #6C6B6B,
               8px 8px 0px #6C6B6B
-            `
+            `,
           }}
         >
           <div
@@ -1546,9 +1568,12 @@ export const FrameContainer = React.forwardRef((props, ref) => {
           </div>
         </div>
       </div>
-      <div style={{
-        marginTop: '40px',
-      }} className="frameMessage">
+      <div
+        style={{
+          marginTop: "40px",
+        }}
+        className="frameMessage"
+      >
         <span className="frameImageError" ref={warnRef}>
           {""}
         </span>

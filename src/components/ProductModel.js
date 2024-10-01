@@ -28,10 +28,16 @@ const ProductInfoModel = ({ children, data }) => {
               alt="Product Image"
             />
           </div>
-          <div class="p-4">
-            <h3 class="text-lg font-medium mb-2">Photo {data?.type}</h3>
-            <p class="text-gray-600 text-sm mb-4">{data?.description}</p>
-            <div class="flex items-center justify-between">
+          <div class="p-4  break-words overflow-hidden">
+            <h3 class="text-lg font-medium mb-2"> {data?.type === "frame" ?`${data?.numberOfFrames} Frame Set`:data?.name}</h3>
+            <div style={{ 
+  whiteSpace: 'break-spaces', 
+  wordBreak: 'break-word',
+  wordWrap: 'break-word',
+  maxWidth: '400px'
+}} class="text-gray-600  text-sm mb-4 w-full ">
+{data?.description2}
+</div>            <div class="flex items-center justify-between">
               <span class="font-bold text-lg">
                 ₹ {data?.price}{" "}
                 {data?.comparePrice &&<span

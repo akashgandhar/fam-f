@@ -108,8 +108,8 @@ const ProductsPage = () => {
   const handleBuyNow = (item) => {};
 
   const handleAddToCart = (numberOfFrames) => {
-    setFramesPreset(numberOfFrames);
-    navigate("/frames", { state: { framesPreset: numberOfFrames } });
+    window.localStorage.setItem("FramesNumber", numberOfFrames);
+    window.location.href = "/frames";
   };
 
   if (isLoading) {
@@ -184,7 +184,7 @@ const ProductsPage = () => {
             style={{ overflowX: "hidden" }}
           >
             <h1 className="text-center my-5">All Products</h1>
-            <aside
+            <div
               style={{
                 width: "100%",
                 borderRadius: "0.5rem",
@@ -199,7 +199,7 @@ const ProductsPage = () => {
               }}
             >
               <div>
-                <h2
+                {/* <h2
                   style={{
                     fontFamily: "os",
                     fontSize: "1.25rem",
@@ -207,7 +207,7 @@ const ProductsPage = () => {
                   }}
                 >
                   Categories
-                </h2>
+                </h2> */}
 
                 <div style={{ position: "relative" }}>
                   {" "}
@@ -284,7 +284,7 @@ const ProductsPage = () => {
               </div>
 
               <div>
-                <h2
+                {/* <h2
                   style={{
                     fontFamily: "os",
                     fontSize: "1.25rem",
@@ -292,9 +292,9 @@ const ProductsPage = () => {
                   }}
                 >
                   Sort By
-                </h2>
+                </h2> */}
 
-                <div style={{ position: "relative", marginTop: "1rem" }}>
+                <div style={{ position: "relative",  }}>
                   {" "}
                   {/* Sort by dropdown */}
                   <div
@@ -440,7 +440,7 @@ const ProductsPage = () => {
                   </a>
                 </li>
               </ul> */}
-            </aside>
+            </div>
 
             <Row style={{ flexWrap: "wrap" }}>
               {SortArray(displayedProducts, sortQuery)

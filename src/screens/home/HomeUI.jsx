@@ -46,10 +46,8 @@ const HomeUI = () => {
   }, []);
 
   const handleAddToCart = useCallback((numberOfFrames) => {
-    console.log("numberOfFrames in HomeUI:", numberOfFrames);
-    setFramesPreset(numberOfFrames);
-    console.log("framesPreset in HomeUI:", framesPreset);
-    navigate("/frames", { state: { framesPreset: numberOfFrames } }); // Pass framesPreset in state
+    window.localStorage.setItem("FramesNumber", numberOfFrames);
+    window.location.href = "/frames";
   });
 
   const responsive = {
