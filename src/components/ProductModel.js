@@ -58,8 +58,30 @@ const ProductInfoModel = ({ children, data }) => {
                 alignItems: "center",
                 gap: "10px",
                 marginTop: "10px",
+                marginBottom: "10px",
+
               }}
             >
+              <img onClick={() => setCurrentImage(data?.imageUrl)}
+                  
+                  style={{
+                    aspectRatio: "12/9",
+                    objectFit: "contain",
+                    width: "100px",
+                    height: "60px",
+                    marginLeft: "'20px",
+                    
+                    border: `${
+                      currentImage === data?.imageUrl
+                        ? "2px solid #f65514"
+                        : "2px solid #ccc"
+                    }`,
+                  }}
+                  class="w-full max-h-[100px] rounded-md object-cover hover:border-orange-500 cursor-pointer"
+                  src={data?.imageUrl}
+                  alt="Product Image"
+                />
+
               {data?.additionalImages?.map((item) => (
                 <img onClick={() => setCurrentImage(item?.url)}
                   key={item.index}
@@ -67,8 +89,14 @@ const ProductInfoModel = ({ children, data }) => {
                     aspectRatio: "12/9",
                     objectFit: "contain",
                     width: "100px",
-                    maxHeight: "100px",
+                    height: "60px",
                     marginLeft: "'20px",
+                    
+                    border: `${
+                      currentImage === item?.url
+                        ? "2px solid #f65514"
+                        : "2px solid #ccc"
+                    }`,
                   }}
                   class="w-full max-h-[100px] rounded-md object-cover hover:border-orange-500 cursor-pointer"
                   src={item?.url}
