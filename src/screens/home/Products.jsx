@@ -69,21 +69,20 @@ const ProductsPage = () => {
   const [sortQuery, setSortQuery] = useState(""); // State to store the sort option
   const [isOpenSort, setIsOpenSort] = useState(false); // State to control the sort dropdown
 
-
   function SortArray(arr, query) {
-    if (!query || query === 'relevance') {
+    if (!query || query === "relevance") {
       return arr; // No sorting or default to original order for 'relevance'
     }
-  
+
     const sortedArr = [...arr]; // Create a copy to avoid mutating the original
-  
-    if (query === 'price_asc') {
+
+    if (query === "price_asc") {
       sortedArr.sort((a, b) => a.price - b.price); // Assuming each item has a 'price' property
-    } else if (query === 'price_desc') {
+    } else if (query === "price_desc") {
       sortedArr.sort((a, b) => b.price - a.price);
-    } 
+    }
     // Add more sorting logic for other potential query values as needed
-  
+
     return sortedArr;
   }
 
@@ -213,7 +212,10 @@ const ProductsPage = () => {
                   {" "}
                   {/* Container for dropdown */}
                   <div
-                    onClick={() => setIsOpen(!isOpen)}
+                    onClick={() => {
+                      setIsOpen(!isOpen);
+                      setIsOpenSort(false);
+                    }}
                     style={{
                       cursor: "pointer",
                       padding: "0.5rem 0.75rem",
@@ -294,11 +296,14 @@ const ProductsPage = () => {
                   Sort By
                 </h2> */}
 
-                <div style={{ position: "relative",  }}>
+                <div style={{ position: "relative" }}>
                   {" "}
                   {/* Sort by dropdown */}
                   <div
-                    onClick={() => setIsOpenSort(!isOpenSort)}
+                    onClick={() => {
+                      setIsOpenSort(!isOpenSort);
+                      setIsOpen(false);
+                    }}
                     style={{
                       cursor: "pointer",
                       padding: "0.5rem 0.75rem",
