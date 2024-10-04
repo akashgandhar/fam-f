@@ -138,7 +138,7 @@ const Checkout = () => {
         }
 
         try {
-            const result = await authAxios.post('http://89.116.34.234:8000/order/book', paymentData,
+            const result = await authAxios.post('http://localhost:8000/order/book', paymentData,
                 {
                     headers: header,
                 });

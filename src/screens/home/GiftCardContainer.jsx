@@ -20,7 +20,7 @@ const GiftCardContainer = () => {
     useEffect(() => {
         const fetchGiftCards = async () => {
             try {
-                const response = await axios.get('http://89.116.34.234:8000/getAllGiftCards');
+                const response = await axios.get('http://localhost:8000/getAllGiftCards');
                 setGiftCards(response.data);
             } catch (error) {
                 toast.error("Failed to fetch gift cards.");
@@ -30,7 +30,7 @@ const GiftCardContainer = () => {
 
         const fetchFrameSizes = async () => {
             try {
-                const response = await axios.get('http://89.116.34.234:8000/getGiftCardFrames');
+                const response = await axios.get('http://localhost:8000/getGiftCardFrames');
                 setFrameSizes(response.data);
             } catch (error) {
                 toast.error("Failed to fetch frame sizes.");
@@ -71,7 +71,7 @@ const GiftCardContainer = () => {
             'Content-Type': 'application/json',
         };
         try {
-            const result = await authAxios.post('http://89.116.34.234:8000/promo/orderId', initPayment, { headers: header });
+            const result = await authAxios.post('http://localhost:8000/promo/orderId', initPayment, { headers: header });
             const { data } = result;
             if (data.success) {
                 const { message } = data;

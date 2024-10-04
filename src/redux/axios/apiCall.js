@@ -80,7 +80,7 @@ export const BuyGiftCardApi = async (data) => {
 //   return response.data;
 // };
 export const CheckPriceApi = async (data) => {
-  const response = await authAxios.post("http://89.116.34.234:8000/order/checkOfferPrice", data, {
+  const response = await authAxios.post("http://localhost:8000/order/checkOfferPrice", data, {
     headers: header,
   });
   return response.data;
