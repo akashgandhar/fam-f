@@ -1,6 +1,6 @@
  export const baseUrl = 'https://backend.familyvibes.in/v1/api/'
 // export const baseUrl = 'https://api.familyvibes.in/v1/api/'
-// export const baseUrl = "http://localhost:8000/v1/api/";
+// export const baseUrl = "http://89.116.34.234:8000/v1/api/";
 // export const baseUrl = "https://backend.archeyewindoors.com/v1/api/";
 export const imgUrl="https://backend.familyvibes.in/public"
 export const redux = {

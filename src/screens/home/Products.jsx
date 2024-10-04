@@ -90,7 +90,7 @@ const ProductsPage = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8000/getAllFrameNumbers"
+          "http://89.116.34.234:8000/getAllFrameNumbers"
         );
         setProducts(response.data);
         setIsLoading(false);
@@ -126,7 +126,7 @@ const ProductsPage = () => {
   //     setSelectedProduct(product);
 
   //     try {
-  //         const response = await axios.post('http://localhost:8000/order/bookprod', {
+  //         const response = await axios.post('http://89.116.34.234:8000/order/bookprod', {
   //             product: product, // Use the product passed to the function
   //             address: 'address',
   //             paymentType: 'online'
