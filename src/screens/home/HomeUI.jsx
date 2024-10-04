@@ -34,7 +34,7 @@ const HomeUI = () => {
     const fetchFrameNumbers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8000/getAllFrameNumbers"
+          "http://89.116.34.234:8000/getAllFrameNumbers"
         );
         setFrameNumbers(response.data);
       } catch (error) {
