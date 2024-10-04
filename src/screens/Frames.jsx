@@ -1360,6 +1360,10 @@ export const BottomSelector = ({
 
   return (
     <div className="ToolBox">
+      <div className="toolContent" onClick={() => setType("size")}>
+        <img src='https://img.icons8.com/cute-clipart/64/edit-image.png' alt="MatIcon" />
+        <span>Size</span>
+      </div>
       <div className="toolContent" onClick={() => setType("frame")}>
         <img src={Icon} alt="Color Icon" />
         <span>Frame Color</span>
@@ -1400,10 +1404,7 @@ export const BottomSelector = ({
         <img src={TextIcon} alt="MatIcon" />
         <span>Add Text</span>
       </div>
-      <div className="toolContent" onClick={() => setType("size")}>
-        <img src={FrameIcon} alt="MatIcon" />
-        <span>Size</span>
-      </div>
+      
       <div
         className="toolContent zoom-in-out-box"
         onClick={() => onPlusClick()}

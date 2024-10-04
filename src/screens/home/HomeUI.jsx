@@ -16,6 +16,7 @@ import { shuffle } from "lodash";
 import { useFrameContext } from "../../context/FrameContext";
 import { ProductContext } from "../../context/ProductContext";
 import ProductInfoModel from "../../components/ProductModel";
+import './home.css';
 
 const HomeUI = () => {
   let homeData = useSelector((state) => state.userReducer.homeData);
@@ -263,10 +264,10 @@ const HomeUI = () => {
             </div>
           </div>
           <div className=" pr-lg-5  pt-lg-5 text-center text-lg-center">
-            <h1 className="wow fadeInDown pt-lg-5 ">
+            <h1 className="wow fadeInDown pt-lg-5 playfair-display-sc-bold">
               {homeData?.homepage?.firstContent?.title}
             </h1>
-            <p className="my-4 w-lg-100 pr-lg-5 wow fadeInDown">
+            <p className="my-4 w-lg-100 pr-lg-5 wow fadeInDown playfair-display-sc-regular">
               {homeData?.homepage?.firstContent?.description}
             </p>
           </div>
