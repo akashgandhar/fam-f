@@ -1,8 +1,8 @@
- export const baseUrl = 'http://89.116.34.234:8000/'
+ export const baseUrl = 'https://backend.familyvibes.in/'
 // export const baseUrl = 'https://api.familyvibes.in/v1/api/'
-// export const baseUrl = "http://89.116.34.234:8000/v1/api/";
+// export const baseUrl = "https://backend.familyvibes.in/v1/api/";
 // export const baseUrl = "https://backend.archeyewindoors.com/v1/api/";
-export const imgUrl="http://89.116.34.234:8000/"
+export const imgUrl="https://backend.familyvibes.in/"
 export const redux = {
   /*Reducer constants*/
   IS_LOADING: "IS_LOADING",

@@ -34,7 +34,7 @@ const HomeUI = () => {
     const fetchFrameNumbers = async () => {
       try {
         const response = await axios.get(
-          "http://89.116.34.234:8000/getAllFrameNumbers"
+          "https://backend.familyvibes.in/getAllFrameNumbers"
         );
         setFrameNumbers(response.data);
       } catch (error) {

@@ -76,7 +76,7 @@ const Frames = () => {
   useEffect(() => {
     const fetchSizes = async () => {
       try {
-        const response = await fetch("http://89.116.34.234:8000/getAllFrames");
+        const response = await fetch("https://backend.familyvibes.in/getAllFrames");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -899,7 +899,7 @@ export const BottomSelector = ({
   useEffect(() => {
     const fetchSizes = async () => {
       try {
-        const response = await fetch("http://89.116.34.234:8000/getAllFrames");
+        const response = await fetch("https://backend.familyvibes.in/getAllFrames");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -929,7 +929,7 @@ export const BottomSelector = ({
   // useEffect(() => {
   //     const fetchColors = async () => {
   //         try {
-  //             const response = await fetch('http://89.116.34.234:8000/getAllColors');
+  //             const response = await fetch('https://backend.familyvibes.in/getAllColors');
   //             if (!response.ok) {
   //                 throw new Error('Network response was not ok');
   //             }

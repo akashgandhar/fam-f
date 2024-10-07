@@ -619,7 +619,7 @@ export const BottomSelector = ({
         // Fetch frame sizes from the backend
         const fetchFrameSizes = async () => {
             try {
-                const response = await axios.get('http://89.116.34.234:8000/getAllFrames');
+                const response = await axios.get('https://backend.familyvibes.in/getAllFrames');
                 setFrameSizes(response.data.map(frame => frame.size));
                 // console.log('Colors:', colors);
             } catch (error) {
@@ -635,7 +635,7 @@ export const BottomSelector = ({
         // Fetch colors from the backend
         const fetchColors = async () => {
             try {
-                const response = await axios.get('http://89.116.34.234:8000/getAllColors');
+                const response = await axios.get('https://backend.familyvibes.in/getAllColors');
                 setColors(response.data);
             } catch (error) {
                 console.error('Error fetching colors', error);
