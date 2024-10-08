@@ -452,7 +452,16 @@ const ProductsPage = () => {
                 ?.filter((product) => selectedCategory.includes(product.type))
                 .map((product) => (
                   <Col key={product._id} xs={12} sm={6} md={4} lg={3}>
-                    <ProductInfoModel data={product}>
+                    <ProductInfoModel
+                      data={product}
+                      isOpen={
+                        // take id from the url query ?id=product._id
+                        // and check if the product id is equal to the id in the url
+                        // if yes, then open the modal
+                        
+                        window.location.search.split("=")[1] === product._id
+                      }
+                    >
                       <ProductCard>
                         <img src={product.imageUrl} alt={product.name} />
                         <h4>

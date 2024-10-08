@@ -326,7 +326,7 @@ const HomeUI = () => {
           autoPlaySpeed={3000}
         >
           {frameNumbers.slice(0, 7).map((item) => (
-            <ProductInfoModel data={item} key={item._id}>
+            <a href={`/products?id=${item._id}`} key={item._id}>
               <div className="col mb-4 mb-lg-0 wow fadeInUp">
                 <div className="position-relative card-container">
                   <div className="dec1 d-flex align-items-center justify-content-center">
@@ -363,7 +363,7 @@ const HomeUI = () => {
                   </div>
                 </div>
               </div>
-            </ProductInfoModel>
+            </a>
           ))}
         </Carousel>
       </section>

@@ -3,8 +3,8 @@ import ReactDOM from "react-dom";
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 
-const ProductInfoModel = ({ children, data }) => {
-  const [open, setOpen] = useState(false);
+const ProductInfoModel = ({ children, data,isOpen }) => {
+  const [open, setOpen] = useState(isOpen ?? false);
 
   const onOpenModal = () => setOpen(true);
   const onCloseModal = () => setOpen(false);
@@ -24,7 +24,7 @@ const ProductInfoModel = ({ children, data }) => {
     <div>
       <div onClick={onOpenModal}>{children}</div>
       {open && (
-        <div>
+        <div >
           <div
             style={{
               padding: "20px",

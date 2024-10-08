@@ -4,6 +4,9 @@ export const getImage = async (item, customer = "products") => {
   try {
     let imgName = item?.replace(`public\\temp\\`, "");
 
+    console.log(`${baseUrl}admin/send-file?imageName=${imgName}`);
+    
+
     const response = await fetch(`${baseUrl}admin/send-file?imageName=${imgName}`, {
       method: 'GET',
       headers: {
