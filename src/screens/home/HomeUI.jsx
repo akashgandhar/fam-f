@@ -17,6 +17,7 @@ import { useFrameContext } from "../../context/FrameContext";
 import { ProductContext } from "../../context/ProductContext";
 import ProductInfoModel from "../../components/ProductModel";
 import './home.css';
+import { UploadFileToStorage,getImageFromStorage } from "../../utils/UploadTools";
 
 const HomeUI = () => {
   let homeData = useSelector((state) => state.userReducer.homeData);
@@ -139,47 +140,34 @@ const HomeUI = () => {
   }, [homeData?.homepage?.firstContent?.links]);
 
   const getImages = async () => {
-    const getSectionImages = async (links, setImageFunction) => {
+    const getSectionImages = async (count, section, setImageFunction) => {
       const sectionImages = await Promise.all(
-        links?.map(async (e) => await getImage(e, "home"))
+        new Array(count).fill(0).map(async (item, index) => {
+          const image = await getImageFromStorage(
+            `${section}-image${index + 1}`
+          );
+          return image;
+        })
       );
       setImageFunction(sectionImages);
     };
 
-    await getSectionImages(homeData?.homepage?.firstContent?.links, setImages);
+    await getSectionImages(6, "firstContent", setImages);
 
-    await getSectionImages(
-      homeData?.homepage?.secondContent?.links,
-      setSecondContentImages
-    );
+    await getSectionImages(1, "secondContent", setSecondContentImages);
 
-    await getSectionImages(
-      homeData?.homepage?.sixthContent?.links,
-      setsixthContentImages
-    );
+    await getSectionImages(3, "sixthContent", setsixthContentImages);
 
-    const thirdContent = await getImage(
-      homeData?.homepage?.thirdContent?.Image,
-      "home"
-    );
-    setthirdContentImages(thirdContent);
+    await getSectionImages(1, "thirdContent", setthirdContentImages);
 
-    const forthContent = await getImage(
-      homeData?.homepage?.forthContent?.Image,
-      "home"
-    );
-    setforthContentImages(forthContent);
+    await getSectionImages(1, "forthContent", setforthContentImages);
 
-    const fifthContent = await getImage(
-      homeData?.homepage?.fifthContent?.Image,
-      "home"
-    );
-    setfifthContent(fifthContent);
+    await getSectionImages(1, "fifthContent", setfifthContent);
 
-    const image1 = await getImage(popupData?.image1, "offer");
-    setpopupImage1(image1);
-    const image2 = await getImage(popupData?.image2, "offer");
-    setpopupImage2(image2);
+    // const image1 = await getImage(popupData?.image1, "offer");
+    // setpopupImage1(image1);
+    // const image2 = await getImage(popupData?.image2, "offer");
+    // setpopupImage2(image2);
   };
   //handle buy now
   const handleBuyNowClick = async (product) => {
