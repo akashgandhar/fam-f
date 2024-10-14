@@ -95,7 +95,7 @@ const Frames = () => {
   }, []);
 
   function calculateFrameDimensions(aspectRatioString) {
-    const [widthRatio, heightRatio] = aspectRatioString.split("x").map(Number);
+    const [widthRatio, heightRatio] = aspectRatioString.split("x")?.map(Number);
     const maxWidth = 400;
     const maxHeight = 300;
 
@@ -160,7 +160,7 @@ const Frames = () => {
     const storedData = localStorage.getItem("family_vibes_images_data");
     const parsedData = JSON.parse(storedData);
     const updatedData = await Promise.all(
-      parsedData.map(async (item) => {
+      parsedData?.map(async (item) => {
         const newUrl = await createwBlobUrl(item.url);
         item.localUrl = newUrl;
         return item;
@@ -179,7 +179,7 @@ const Frames = () => {
     if (e.target.files?.length > 0) {
       dispatch(loaderAction(true));
 
-      const fileProcessingPromises = Array.from(e.target.files).map(
+      const fileProcessingPromises = Array.from(e.target.files)?.map(
         async (item) => {
           const url = await fileUpload(item);
 
@@ -371,7 +371,7 @@ const Frames = () => {
 
       // If the count matches, update existing images
       if (parsedImages?.length === numberOfFrames) {
-        initialImages = parsedImages.map((item) => ({
+        initialImages = parsedImages?.map((item) => ({
           ...item,
           width: frameWidth,
           height: frameHeight,
@@ -518,7 +518,7 @@ const Frames = () => {
                     setImages(tempArr);
                     globalImages = tempArr;
                   } else {
-                    const tempData = globalImages.map((item) => {
+                    const tempData = globalImages?.map((item) => {
                       const tempObj = { ...item };
                       const tempArraySticker = [...tempObj.sticker];
                       tempArraySticker.push(sticker);
@@ -702,7 +702,7 @@ const Frames = () => {
                 >
                   {Array.from({
                     length: initialFramesPreset - numberOfFrames,
-                  }).map((_, i) => (
+                  })?.map((_, i) => (
                     <div
                       className="frame-one"
                       style={{ width: "400px", height: "300px" }}
@@ -730,7 +730,7 @@ const Frames = () => {
                   ))}
                 </div>
 
-                {images.map((item, index) => (
+                {images?.map((item, index) => (
                   <FrameContainer
                     item={item}
                     index={index}
@@ -742,7 +742,7 @@ const Frames = () => {
                       updateAndSaveImagesInLocalStorage(globalImages);
                     }}
                     deleteText={() => {
-                      const tempData = globalImages.map((item, subIndex) => {
+                      const tempData = globalImages?.map((item, subIndex) => {
                         const tempData = { ...item };
                         if (subIndex === index) {
                           tempData["text"] = "";
@@ -778,7 +778,7 @@ const Frames = () => {
                       setImages(tempData);
                     }}
                     onDeleteSticker={(index, subItem, sticketIndex) => {
-                      const tempData = globalImages.map((item, subIndex) => {
+                      const tempData = globalImages?.map((item, subIndex) => {
                         const tempData = { ...item };
                         if (subIndex === index) {
                           const tempStickers = tempData.sticker.filter(
@@ -793,7 +793,7 @@ const Frames = () => {
                       updateAndSaveImagesInLocalStorage(globalImages);
                     }}
                     onSizePass={(index, data, sticketIndex) => {
-                      const tempData = globalImages.map((item, subIndex) => {
+                      const tempData = globalImages?.map((item, subIndex) => {
                         const tempData = { ...item };
                         if (subIndex === index) {
                           tempData.sticker[sticketIndex].size = data;
@@ -804,7 +804,7 @@ const Frames = () => {
                       updateAndSaveImagesInLocalStorage(globalImages);
                     }}
                     onPosition={(index, data, sticketIndex) => {
-                      const tempData = globalImages.map((item, subIndex) => {
+                      const tempData = globalImages?.map((item, subIndex) => {
                         const tempData = { ...item };
                         if (subIndex === index) {
                           tempData.sticker[sticketIndex].position = data;
@@ -1065,7 +1065,7 @@ export const BottomSelector = ({
     return (
       <div className="ToolBox Frame">
         {/* {JSON.stringify(availableColors)} */}
-        {colors.map((color) => (
+        {colors?.map((color) => (
           <div
             key={color._id}
             className={`toolContent ${
@@ -1217,7 +1217,7 @@ export const BottomSelector = ({
   } else if (type === "size") {
     return (
       <div className="ToolBox Size">
-        {sizes.map((size) => (
+        {sizes?.map((size) => (
           <div
             key={size._id}
             className={`toolContent ${
@@ -1318,7 +1318,7 @@ export const BottomSelector = ({
 
         {selectedFrame > -1 && ( // Conditionally render size options
           <div className="ToolBox Size">
-            {sizes.map((size) => (
+            {sizes?.map((size) => (
               <div
                 key={size._id}
                 className={`toolContent ${
@@ -1535,7 +1535,7 @@ export const FrameContainer = React.forwardRef((props, ref) => {
             }
 
             {item.sticker?.length > 0 &&
-              item.sticker.map((subItem, sticketIndex) => {
+              item.sticker?.map((subItem, sticketIndex) => {
                 return (
                   <ResizeableContainer
                     key={Math.random().toString()}
