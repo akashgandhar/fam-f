@@ -1,6 +1,16 @@
 /* ------------------------------ Old CSS ------------------------------- */
 
 
+
+/* for mobile  */
+@media (max-width: 768px) {
+    .home-title {
+        font-size: 20px;
+        margin-top: 10px;
+    }
+}
+
+
 .line {
     width: 1270px;
     height: 4px;

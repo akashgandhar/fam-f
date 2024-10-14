@@ -267,7 +267,7 @@ const HomeUI = () => {
             </div>
           </div>
           <div className=" pr-lg-5  pt-lg-5 text-center text-lg-center">
-            <h1 className="wow fadeInDown pt-lg-5 playfair-display-sc-bold">
+            <h1 className="wow fadeInDown pt-lg-5 playfair-display-sc-bold home-title">
               {homeData?.homepage?.firstContent?.title}
             </h1>
             <p className="my-4 w-lg-100 pr-lg-5 wow fadeInDown playfair-display-sc-regular">
