@@ -5465,12 +5465,14 @@ footer h4 {
 .dec1 {
     flex-grow: 1; 
     overflow: hidden; 
+    aspect-ratio: 1/1;
 }
 
 .img-fluid {
     width: 100%;
     height: 100%;
-    object-fit: cover; 
+    object-fit: contain; 
+    
 }
 
 .card-content {
