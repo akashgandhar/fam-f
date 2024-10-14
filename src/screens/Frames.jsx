@@ -843,6 +843,7 @@ const Frames = () => {
                     setSize1={setSize1}
                     color1={color1}
                     setColor1={setColor1}
+                    
                   />
                 ))}
               </>
@@ -1476,13 +1477,27 @@ export const FrameContainer = React.forwardRef((props, ref) => {
   const warnRef = useRef();
   console.log("item:", item);
 
+  function extractNumbers(text,index) {
+    
+    const pattern = /(\d+)\D+(\d+)/;
+    const match = text.match(pattern);
+    if (match) {
+      return match[index];
+    } else {
+      return null;
+    }
+  }
+
+  const height  = extractNumbers(props?.size,2);
+  const width = extractNumbers(props.size,1);
+
   return (
     <div
       className={`FrameContainer ${
         selectedFrame == index ? "SelectedFrame" : ""
       }`}
     >
-      {/* {JSON.stringify(color1)} */}
+      
       <div
         className="ImageContainer"
         ref={(temp) => {
@@ -1503,8 +1518,11 @@ export const FrameContainer = React.forwardRef((props, ref) => {
           style={{
             border: `12px solid`,
             borderColor: color1 ? color1 : "black",
-            height: "325px",
-            width: "325px",
+            // height: height ? `${height*25}px` : "auto",
+            // width: width ? `${width*25}px` : "auto",
+            maxHeight: "300px",
+            maxWidth: "300px",
+            aspectRatio: `${width}/${height}`,
             boxShadow: `
               1px 1px 0px #6C6B6B,
               2px 2px 0px #6C6B6B,
@@ -1560,6 +1578,7 @@ export const FrameContainer = React.forwardRef((props, ref) => {
                 />
               </div>
             }
+            
 
             {item.sticker?.length > 0 &&
               item.sticker?.map((subItem, sticketIndex) => {
