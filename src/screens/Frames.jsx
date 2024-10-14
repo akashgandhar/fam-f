@@ -76,12 +76,15 @@ const Frames = () => {
   useEffect(() => {
     const fetchSizes = async () => {
       try {
-        const response = await fetch("https://backend.familyvibes.in/getAllFrames");
+        const response = await fetch(
+          "https://backend.familyvibes.in/getAllFrames"
+        );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
         setSizes(data);
+        setSize1(data[0]?.size);
 
         if (selectedFrame > -1 && globalImages[selectedFrame].size) {
           setSelectedSize(globalImages[selectedFrame].size);
@@ -440,7 +443,7 @@ const Frames = () => {
     <div className="UserAdmin">
       <Header
         showCheckout={
-          frameNumber >0
+          frameNumber > 0
             ? images?.length === Number(frameNumber)
             : images?.length > 0
         }
@@ -472,13 +475,20 @@ const Frames = () => {
             {/* {frameNumber} */}
             {frameNumber > 0 && (
               <div className="alert alert-danger text-center">
-                {frameNumber - images?.length<0?`You have added ${ images?.length - frameNumber} extra frames, delete the extra frames to
-                complete the order.`:`You have to add ${frameNumber - images?.length} more frames to
+                {frameNumber - images?.length < 0
+                  ? `You have added ${
+                      images?.length - frameNumber
+                    } extra frames, delete the extra frames to
+                complete the order.`
+                  : `You have to add ${
+                      frameNumber - images?.length
+                    } more frames to
                 complete the order.`}
                 {/*set initial frame preset to 0 on clicking reset button*/}
-                <Button style={{
-                  marginLeft: "10px"
-                }}
+                <Button
+                  style={{
+                    marginLeft: "10px",
+                  }}
                   variant="danger"
                   onClick={() => {
                     localStorage.setItem("FramesNumber", null);
@@ -500,6 +510,7 @@ const Frames = () => {
                 }
                 div1Ref={div1Ref}
                 setSize1={setSize1}
+                size1={size1}
                 setColor1={setColor1}
                 setType={setType}
                 onPlusClick={() => {
@@ -870,6 +881,7 @@ export const BottomSelector = ({
   setValue,
   updateRange,
   setSize1,
+  size1,
   setImages,
   updateAndSaveImagesInLocalStorage,
   div1Ref,
@@ -887,7 +899,7 @@ export const BottomSelector = ({
   const imageSize = 22;
   const [sizes, setSizes] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
-  const [colors, setColors] = useState(availableColors);
+  const [colors, setColors] = useState(availableColors ?? []);
   const [selectedColor, setSelectedColor] = useState(null);
   const [frameStyle, setFrameStyle] = useState({});
   const [subFrameStyle, setSubFrameStyle] = useState({});
@@ -899,7 +911,9 @@ export const BottomSelector = ({
   useEffect(() => {
     const fetchSizes = async () => {
       try {
-        const response = await fetch("https://backend.familyvibes.in/getAllFrames");
+        const response = await fetch(
+          "https://backend.familyvibes.in/getAllFrames"
+        );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -1065,6 +1079,11 @@ export const BottomSelector = ({
     return (
       <div className="ToolBox Frame">
         {/* {JSON.stringify(availableColors)} */}
+        {colors?.length <= 0 && (
+          <div className="text-center">
+            No colors available!Please Choose Size.
+          </div>
+        )}
         {colors?.map((color) => (
           <div
             key={color._id}
@@ -1218,10 +1237,15 @@ export const BottomSelector = ({
     return (
       <div className="ToolBox Size">
         {sizes?.map((size) => (
-          <div
+          <div style={{
+            background: size.size === size1 ? "#ff5814" : "#ddd",
+            color: size.size === size1 ? "white" : "black",
+            padding: "5px",
+            borderRadius: "5px",
+          }}
             key={size._id}
             className={`toolContent ${
-              selectedSize === size.size ? "activeEffect" : ""
+              size1 === size.size ? "activeEffect" : ""
             }`}
             onClick={() => {
               setSize1(size.size);
@@ -1361,7 +1385,10 @@ export const BottomSelector = ({
   return (
     <div className="ToolBox">
       <div className="toolContent" onClick={() => setType("size")}>
-        <img src='https://img.icons8.com/cute-clipart/64/edit-image.png' alt="MatIcon" />
+        <img
+          src="https://img.icons8.com/cute-clipart/64/edit-image.png"
+          alt="MatIcon"
+        />
         <span>Size</span>
       </div>
       <div className="toolContent" onClick={() => setType("frame")}>
@@ -1404,7 +1431,7 @@ export const BottomSelector = ({
         <img src={TextIcon} alt="MatIcon" />
         <span>Add Text</span>
       </div>
-      
+
       <div
         className="toolContent zoom-in-out-box"
         onClick={() => onPlusClick()}
