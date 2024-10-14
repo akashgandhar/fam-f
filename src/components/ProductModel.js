@@ -1,13 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
+import { ProductContext } from "../context/ProductContext";
+import { useNavigate } from "react-router-dom";
 
 const ProductInfoModel = ({ children, data,isOpen }) => {
   const [open, setOpen] = useState(isOpen ?? false);
 
   const onOpenModal = () => setOpen(true);
   const onCloseModal = () => setOpen(false);
+  const navigate = useNavigate();
+  const { selectedProduct, setSelectedProduct } = useContext(ProductContext);
+
+  const handleBuyNowClick = async (product) => {
+    //navigate to /checkout
+    setSelectedProduct(product);
+    navigate("/checkout");
+  };
+
+  const handleAddToCart = (numberOfFrames) => {
+    window.localStorage.setItem("FramesNumber", numberOfFrames);
+    window.location.href = "/frames";
+  };
 
   useEffect(() => {
     if (open) {
@@ -31,6 +46,10 @@ const ProductInfoModel = ({ children, data,isOpen }) => {
               backgroundColor: "white",
               width: "100vw",
               height: "100vh",
+              minHeight: "100vh",
+              display: "flex",
+              flexDirection: "column",
+              
               position: "fixed",
               top: "0",
               left: "0",
@@ -192,7 +211,12 @@ const ProductInfoModel = ({ children, data,isOpen }) => {
                     )}
                   </span>
                 </div>
-                <button
+                <button  
+                onClick={() =>
+                            data.type === "product"
+                              ? handleBuyNowClick(data)
+                              : handleAddToCart(data?.numberOfFrames)
+                          }
                   style={{
                     backgroundColor: "#f65514",
                     outline: "none",

@@ -485,7 +485,7 @@ const ProductsPage = () => {
                             </span>
                           )}
                         </p>
-                        <button
+                        <button 
                           onClick={() =>
                             product.type === "product"
                               ? handleBuyNowClick(product)

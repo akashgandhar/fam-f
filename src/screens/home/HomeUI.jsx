@@ -6,18 +6,16 @@ import { useSelector } from "react-redux";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import YoutubeThumbnail from "../../assets/images/capture.png";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { getImage } from "../../components/fileUploader/getImage";
-import { imgUrl } from "../../theme/appConstants";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import axios from "axios";
-import { Link, Navigate } from "react-router-dom";
-import { shuffle } from "lodash";
 import { useFrameContext } from "../../context/FrameContext";
 import { ProductContext } from "../../context/ProductContext";
-import ProductInfoModel from "../../components/ProductModel";
 import './home.css';
-import { UploadFileToStorage,getImageFromStorage } from "../../utils/UploadTools";
+import { getImageFromStorage } from "../../utils/UploadTools";
+
+import './home.css';
+
 
 const HomeUI = () => {
   let homeData = useSelector((state) => state.userReducer.homeData);

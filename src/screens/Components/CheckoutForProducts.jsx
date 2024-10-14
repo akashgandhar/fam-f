@@ -1,17 +1,27 @@
-import React, { useContext, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { showCheckOutAction } from '../../redux/actions/global';
-import { ProductContext } from '../../context/ProductContext';
-import styled from 'styled-components';
-import axios from 'axios';
+import React, { useContext, useState } from "react";
+import { useDispatch } from "react-redux";
+import { showCheckOutAction } from "../../redux/actions/global";
+import { ProductContext } from "../../context/ProductContext";
+import styled from "styled-components";
+import axios from "axios";
+import {
+  CitySelect,
+  CountrySelect,
+  StateSelect,
+  LanguageSelect,
+  GetCountries,
+  GetState,
+} from "react-country-state-city";
+import "react-country-state-city/dist/react-country-state-city.css";
+import { set } from "firebase/database";
 
 const CheckoutContainer = styled.div`
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
   align-items: center;
   padding: 40px;
   border-radius: 15px;
-  background: linear-gradient(135deg, #f0f0f0, #e0e0e0); 
+  background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
   max-width: 800px;
   margin: 50px auto;
@@ -22,8 +32,8 @@ const CheckoutContainer = styled.div`
 
   .product-image {
     width: 100%;
-    max-height: 400px; 
-    object-fit: contain; 
+    max-height: 400px;
+    object-fit: contain;
     border-radius: 10px;
     box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 30px;
@@ -36,7 +46,7 @@ const CheckoutContainer = styled.div`
       font-size: 3rem;
       margin-bottom: 20px;
       color: #222;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
     }
 
     .product-name {
@@ -88,14 +98,14 @@ const CheckoutContainer = styled.div`
     background-color: #ff5814;
     color: #fff;
     border: none;
-    border-radius: 25px; 
+    border-radius: 25px;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
 
     &:hover {
       background-color: #e64a0f;
-      transform: translateY(-2px) scale(1.05); 
+      transform: translateY(-2px) scale(1.05);
     }
   }
 `;
@@ -103,23 +113,53 @@ const CheckoutContainer = styled.div`
 export default function CheckoutForProducts() {
   const { selectedProduct } = useContext(ProductContext);
   const dispatch = useDispatch();
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [customerName, setCustomerName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [city, setCity] = useState('');
-  const [pincode, setPincode] = useState('');
-  const [state, setState] = useState('');
-  const [country, setCountry] = useState('');
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [city, setCity] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [state, setState] = useState("");
+  const [country, setCountry] = useState("");
+
+  const [countryid, setCountryid] = useState(0);
+  const [stateid, setstateid] = useState(0);
 
   const gstRate = 0.18; // 18% GST
   const gstAmount = selectedProduct ? selectedProduct.price * gstRate : 0;
   const totalAmount = selectedProduct ? selectedProduct.price + gstAmount : 0;
 
   const handleCheckout = async () => {
+    if (
+      !customerName ||
+      !lastName ||
+      !email ||
+      !phoneNumber ||
+      !address ||
+      !city ||
+      !pincode ||
+      !state ||
+      !country
+    ) {
+      alert("Please fill all the details.");
+      console.log({
+        customerName: customerName,
+        lastName: lastName,
+        email: email,
+        phoneNumber: phoneNumber,
+        address: address,
+        city: city,
+        pincode: pincode,
+        state: state,
+        country: country,
+      });
+
+      return;
+    }
+
     const product = selectedProduct;
-    console.log('product', product);
+    console.log("product", product);
 
     const addressDetails = {
       name: customerName,
@@ -130,34 +170,37 @@ export default function CheckoutForProducts() {
       state: state,
       country: country,
       email: email,
-      phone: phoneNumber
+      phone: phoneNumber,
     };
 
     try {
-      const response = await axios.post('https://backend.familyvibes.in/order/bookprod', {
-        product: product,
-        address: addressDetails,
-        paymentType: 'online'
-      });
+      const response = await axios.post(
+        "https://backend.familyvibes.in/order/bookprod",
+        {
+          product: product,
+          address: addressDetails,
+          paymentType: "online",
+        }
+      );
 
-      console.log('Response from server:', response.data);
+      console.log("Response from server:", response.data);
 
       let { data } = response;
       if (data.success) {
-        console.log('Payment initiated successfully:', data);
+        console.log("Payment initiated successfully:", data);
         if (data?.data?.isFree) {
-            console.log('Free product');
+          console.log("Free product");
           window.location.href = `https://familyvibes.in/thank-you?type=order&order_id=${data?.data?.id}`;
         }
-        console.log('Payment initiated successfully2 :', data);
+        console.log("Payment initiated successfully2 :", data);
         data = data?.data?.data;
-        console.log('Payment initiated successfully3 :', data);
+        console.log("Payment initiated successfully3 :", data);
         let urlInfo = data?.instrumentResponse?.redirectInfo;
         if (urlInfo) {
-            console.log('Payment initiated successfully4 :', urlInfo);
-            window.open(urlInfo?.url, '_self'); 
-          console.log('url: ' , urlInfo?.url)
-          console.log('redirected to: ', urlInfo?.url);
+          console.log("Payment initiated successfully4 :", urlInfo);
+          window.open(urlInfo?.url, "_self");
+          console.log("url: ", urlInfo?.url);
+          console.log("redirected to: ", urlInfo?.url);
         }
       } else {
         alert("Payment initiate error.");
@@ -169,13 +212,18 @@ export default function CheckoutForProducts() {
   };
 
   if (!selectedProduct) {
+    window.location.href = "/products";
     return <div>No product selected for checkout.</div>;
   }
 
   return (
     <CheckoutContainer>
       {selectedProduct.imageUrl && (
-        <img src={selectedProduct.imageUrl} alt={selectedProduct.name} className="product-image" />
+        <img
+          src={selectedProduct.imageUrl}
+          alt={selectedProduct.name}
+          className="product-image"
+        />
       )}
       <div className="checkout-details">
         <h2>You're Almost There!</h2>
@@ -224,6 +272,54 @@ export default function CheckoutForProducts() {
           />
         </div>
         <div className="form-group">
+          <label>Country</label>
+          <CountrySelect
+            onChange={(e) => {
+              setCountryid(e.id);
+              GetCountries().then((result) => {
+                result?.map((item) => {
+                  if (item.id === e.id) {
+                    setCountry(item.name);
+                  }
+                });
+              });
+            }}
+            placeHolder="Select Country"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>State</label>
+          <StateSelect
+            countryid={countryid}
+            onChange={(e) => {
+              setstateid(e.id);
+              GetState(countryid).then((result) => {
+                result?.map((item) => {
+                  if (item.id === e.id) {
+                    setState(item.name);
+                  }
+                });
+              });
+            }}
+            placeHolder="Select State"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>City</label>
+          <CitySelect
+            countryid={countryid}
+            stateid={stateid}
+            onChange={(e) => {
+              console.log(e);
+              setCity(e.name);
+            }}
+            placeHolder="Select City"
+          />
+        </div>
+
+        <div className="form-group">
           <label htmlFor="address">Address</label>
           <input
             type="text"
@@ -233,16 +329,7 @@ export default function CheckoutForProducts() {
             required
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="city">City</label>
-          <input
-            type="text"
-            id="city"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            required
-          />
-        </div>
+
         <div className="form-group">
           <label htmlFor="pincode">Pincode</label>
           <input
@@ -253,70 +340,7 @@ export default function CheckoutForProducts() {
             required
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="state">State</label>
-          <select style={{
-            width: '100%',
-            padding: '10px',
-            border: '1px solid #ccc',
-            borderRadius: '5px',
-            fontSize: '1rem'
-          }}
-            type="text"
-            id="state"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            required
-          >
-            <option value="">Select State</option>
-            <option value="Andhra Pradesh">Andhra Pradesh</option>
-            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-            <option value="Assam">Assam</option>
-            <option value="Bihar">Bihar</option>
-            <option value="Chhattisgarh">Chhattisgarh</option>
-            <option value="Goa">Goa</option>
-            <option value="Gujarat">Gujarat</option>
-            <option value="Haryana">Haryana</option>
-            <option value="Himachal Pradesh">Himachal Pradesh</option>
-            <option value="Jharkhand">Jharkhand</option>
-            <option value="Karnataka">Karnataka</option>
-            <option value="Kerala">Kerala</option>
-            <option value="Madhya Pradesh">Madhya Pradesh</option>
-            <option value="Maharashtra">Maharashtra</option>
-            <option value="Manipur">Manipur</option>
-            <option value="Meghalaya">Meghalaya</option>
-            <option value="Mizoram">Mizoram</option>
-            <option value="Nagaland">Nagaland</option>
-            <option value="Odisha">Odisha</option>
-            <option value="Punjab">Punjab</option>
-            <option value="Rajasthan">Rajasthan</option>
-            <option value="Sikkim">Sikkim</option>
-            <option value="Tamil Nadu">Tamil Nadu</option>
-            <option value="Telangana">Telangana</option>
-            <option value="Tripura">Tripura</option>
-            <option value="Uttar Pradesh">Uttar Pradesh</option>
-            <option value="Uttarakhand">Uttarakhand</option>
-            <option value="West Bengal">West Bengal</option>
-            <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
-            <option value="Chandigarh">Chandigarh</option>
-            <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
-            <option value="Lakshadweep">Lakshadweep</option>
-            <option value="Delhi">Delhi</option>
-            <option value="Puducherry">Puducherry</option>
-            <option value="Ladakh">Ladakh</option>
-            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label htmlFor="country">Country</label>
-          <input
-            type="text"
-            id="country"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            required
-          />
-        </div>
+
         <button onClick={handleCheckout} className="checkout-button">
           Complete Your Purchase
         </button>
