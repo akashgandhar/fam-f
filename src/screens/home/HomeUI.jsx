@@ -100,13 +100,20 @@ const HomeUI = () => {
     return YoutubeThumbnail;
   };
 
+  const [popupShown, setPopupShown] = useState(false);
+
   useEffect(() => {
-    setTimeout(() => {
+   {if(!popupShown){ setTimeout(() => {
       console.log("homeData?.homepage?.popup", homeData?.homepage?.popup);
       console.log("home data", homeData);
 
       setofferPop(homeData?.homepage?.popup);
-    }, 2000);
+      setPopupShown(true);
+    }, 2000);}
+    else{
+      setofferPop(false);
+    }
+  }
   }, []);
 
   useEffect(() => {
