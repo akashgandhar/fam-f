@@ -1507,8 +1507,8 @@ export const FrameContainer = React.forwardRef((props, ref) => {
           padding: item.isShowBoundry ? 0 : 10,
           // width: item.size ? `${item.size.split('x')[0] * 100}px` : 'auto',
           // height: item.size ? `${item.size.split('x')[1] * 100}px` : 'auto'
-          width: item.width ? `${item.width}px` : "auto",
-          height: item.height ? `${item.height}px` : "auto",
+          width: "auto",
+          height: "auto",
         }}
       >
         <div
@@ -1523,16 +1523,16 @@ export const FrameContainer = React.forwardRef((props, ref) => {
             maxHeight: "300px",
             maxWidth: "300px",
             aspectRatio: `${width}/${height}`,
-            boxShadow: `
-              1px 1px 0px #6C6B6B,
-              2px 2px 0px #6C6B6B,
-              3px 3px 0px #6C6B6B,
-              4px 4px 0px #6C6B6B,
-              5px 5px 0px #6C6B6B,
-              6px 6px 0px #6C6B6B,
-              7px 7px 0px #6C6B6B,
-              8px 8px 0px #6C6B6B
-            `,
+            // boxShadow: `
+            //   1px 1px 0px #6C6B6B,
+            //   2px 2px 0px #6C6B6B,
+            //   3px 3px 0px #6C6B6B,
+            //   4px 4px 0px #6C6B6B,
+            //   5px 5px 0px #6C6B6B,
+            //   6px 6px 0px #6C6B6B,
+            //   7px 7px 0px #6C6B6B,
+            //   8px 8px 0px #6C6B6B
+            // `,
           }}
         >
           <div
