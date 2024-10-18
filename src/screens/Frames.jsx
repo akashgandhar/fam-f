@@ -1452,6 +1452,16 @@ export const BottomSelector = ({
 export default Frames;
 
 export const FrameContainer = React.forwardRef((props, ref) => {
+  function hexToRGBA(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+  
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;   
+  
+  }
+
+
   const {
     item,
     index,
@@ -1523,16 +1533,17 @@ export const FrameContainer = React.forwardRef((props, ref) => {
             maxHeight: "300px",
             maxWidth: "300px",
             aspectRatio: `${width}/${height}`,
-            // boxShadow: `
-            //   1px 1px 0px #6C6B6B,
-            //   2px 2px 0px #6C6B6B,
-            //   3px 3px 0px #6C6B6B,
-            //   4px 4px 0px #6C6B6B,
-            //   5px 5px 0px #6C6B6B,
-            //   6px 6px 0px #6C6B6B,
-            //   7px 7px 0px #6C6B6B,
-            //   8px 8px 0px #6C6B6B
-            // `,
+            boxShadow: `
+              1px 1px 0px ${color1 ? hexToRGBA(color1,0.2) : "#333"},
+              2px 2px 0px ${color1 ? hexToRGBA(color1,0.2) : "#333"},
+              3px 3px 0px ${color1 ? hexToRGBA(color1,0.2) : "#333"},
+              4px 4px 0px ${color1 ? hexToRGBA(color1,0.2) : "#333"},
+              5px 5px 0px ${color1 ? hexToRGBA(color1,0.2) : "#333"},
+              6px 6px 0px ${color1 ? hexToRGBA(color1,0.2) : "#333"},
+              7px 7px 0px ${color1 ? hexToRGBA(color1,0.2) : "#333"},
+              8px 8px 0px ${color1 ? hexToRGBA(color1,0.2) : "#333"}
+            `,
+            
           }}
         >
           <div

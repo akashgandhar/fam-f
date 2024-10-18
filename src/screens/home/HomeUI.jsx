@@ -274,10 +274,13 @@ const HomeUI = () => {
             </div>
           </div>
           <div className=" pr-lg-5  pt-lg-5 text-center text-lg-center">
-            <h1 className="wow fadeInDown pt-lg-5 playfair-display-sc-bold home-title">
+            <h1 className="wow fadeInDown pt-lg-5  home-title">
               {homeData?.homepage?.firstContent?.title}
             </h1>
-            <p className="my-4 w-lg-100 pr-lg-5 wow fadeInDown playfair-display-sc-regular">
+            <p className="my-4 w-lg-100 pr-lg-5 wow fadeInDown " style={{
+              color: "gray",
+              fontWeight: "450",
+            }}>
               {homeData?.homepage?.firstContent?.description}
             </p>
           </div>
