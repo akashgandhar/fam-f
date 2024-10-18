@@ -743,6 +743,7 @@ const Frames = () => {
 
                 {images?.map((item, index) => (
                   <FrameContainer
+                    
                     item={item}
                     index={index}
                     key={Math.random().toString()}
@@ -1483,6 +1484,7 @@ export const FrameContainer = React.forwardRef((props, ref) => {
     setSize1,
     color1,
     setColor1,
+    mat
   } = props;
   const warnRef = useRef();
   console.log("item:", item);
