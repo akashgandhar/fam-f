@@ -180,7 +180,17 @@ const NavContainer = () => {
                   </NavLink>
                 </li>
                 <li>
-                  <span
+                  <span onMouseEnter={()=> {
+                    document.getElementById("fr").style.textDecoration = "underline";
+                  }}
+                    onMouseLeave={()=> {
+                        document.getElementById("fr").style.textDecoration = "none";
+                    }}
+                  style={{
+                    fontWeight: "450",
+                    cursor: "pointer",
+                    
+                  }}
                     onClick={() => {
                       window.location.href = "/frames";
                     }}
