@@ -278,8 +278,9 @@ const HomeUI = () => {
               {homeData?.homepage?.firstContent?.title}
             </h1>
             <p className="my-4 w-lg-100 pr-lg-5 wow fadeInDown " style={{
-              color: "gray",
+              color: "black",
               fontWeight: "450",
+              fontSize: "20px",
             }}>
               {homeData?.homepage?.firstContent?.description}
             </p>
