@@ -166,7 +166,8 @@ const GiftCardContainer = () => {
                     <option value="">Select a size</option>
                     {frameSizes.map((frame) => (
                       <option key={frame._id} value={frame.size}>
-                        {frame.size}{frame?.price ? ` + ₹${frame.price}` : ''}
+                        {frame.size}
+                        {frame?.price ? ` + ₹${frame.price}/Frame` : ""}
                       </option>
                     ))}
                   </select>
@@ -191,7 +192,14 @@ const GiftCardContainer = () => {
                           />
                           <label htmlFor={giftCards._id}>
                             {giftCards.numberOfFrames} Squares{" "}
-                            <span>₹ {giftCards.price}</span>
+                            <span>
+                              ₹{" "}
+                              {giftCards.price +
+                                (giftCards?.numberOfFrames *
+                                  frameSizes?.find(
+                                    (frame) => frame.size === selectedSize
+                                  )?.price || 0)}
+                            </span>
                           </label>
                         </div>
                       ))}
